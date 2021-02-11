@@ -53,3 +53,34 @@ date: "2021-02-11"
 | `Camera GameObject Click` + `Ctrl` + `Shift` + `F` | Scene View와 Camera View의 Transfrom 동기화 |
 |               `Ctrl` + `Shift` + `C`               |            Console 창 뜨게 하기             |
 |                        ...                         |                     ...                     |
+
+### Component Pattern
+
+- Code를 부품화해서 관리한다.
+- Unity에서 모든 GameObject는 컴포넌트 정보에 따라 달라진다.
+- C# Script를 작성하여 컴포넌트로 사용한다.
+
+- Unity 에서는 MonoBehaviour를 상속을 해야 컴포넌트로써 실행이 가능
+
+  - 따라서, MonoBehaviour를 상속받는 Class는 `new 클래스명();` 불가능
+  - Create C# Script--상속--`MonoBehaviour Class`----`Behaviour`----`Component`----`Object`
+
+- ex) 오브젝트 회전 컴포넌트
+
+  ```cs
+  using System.Collections;
+  using System.Collections.Generic;
+  using UnityEngine;
+
+  public class Test : MonoBehaviour
+  {
+      void Update()
+      {
+          transform.Rotate(new Vector3(1.0f, 1.0f, 1.0f));
+      }
+  }
+  ```
+
+  |                              결과                              |
+  | :------------------------------------------------------------: |
+  | ![Result Rotated](../uploads/unity-outline/result-rotated.gif) |
