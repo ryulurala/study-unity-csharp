@@ -26,3 +26,30 @@ date: "2021-02-11"
    - | `Preferences`-`External Tools`-`External Script Editor`-`Visual Studio Code` |
      | :--------------------------------------------------------------------------: |
      | ![VSCode Unity Settings](../uploads/unity-outline/VSCode_unity-settings.png) |
+
+### 화면 창(Window)
+
+|   view    |               description                |
+| :-------: | :--------------------------------------: |
+|   Scene   | (=영화 세트장), GameObject가 배치된 View |
+| Hierarchy |       GameObject의 List(Tree 형태)       |
+|  Project  |     Project와 관련된 모든 파일 표시      |
+|   Game    |   Main Camera에 의해 렌더링 되는 View    |
+| Inspector |  선택한 GameObject에 대한 컴포넌트 정보  |
+|    ...    |                   ...                    |
+
+### 유용한 단축키
+
+|                       단축키                       |                 description                 |
+| :------------------------------------------------: | :-----------------------------------------: |
+|                     `Ctrl`+`P`                     |                 Play / Stop                 |
+|                 `Ctrl`+`Shift`+`N`                 |               New GameObject                |
+|           `RMB Click`+`W`, `A`, `S`, `D`           |              Scene View 움직임              |
+|             `RMB Click`+`Mouse Wheel`              |         Scene View 움직임 속도 조절         |
+|                     `Ctrl`+`Z`                     |                  되돌리기                   |
+|                    `W` in Scene                    |          Move tool(Object Control)          |
+|                    `E` in Scene                    |                 Rotate tool                 |
+|                    `R` in Scene                    |                 Scale tool                  |
+| `Camera GameObject Click` + `Ctrl` + `Shift` + `F` | Scene View와 Camera View의 Transfrom 동기화 |
+|               `Ctrl` + `Shift` + `C`               |            Console 창 뜨게 하기             |
+|                        ...                         |                     ...                     |
