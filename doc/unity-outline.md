@@ -1,7 +1,7 @@
 ---
 title: "Unity 기초"
 category: Unity-Framework
-tags: [unity, visual studio code]
+tags: [unity, visual studio code, component, singleton]
 date: "2021-02-11"
 ---
 
@@ -84,3 +84,77 @@ date: "2021-02-11"
   |                              결과                              |
   | :------------------------------------------------------------: |
   | ![Result Rotated](../uploads/unity-outline/result-rotated.gif) |
+
+### Singleton Pattern
+
+- 대부분 관리(`Managing`)하는 객체(`Instance`)는 오직 1개만 존재해야 함.
+  - 최초의 생성자로 1번만 객체를 생성.
+  - 여러 차례 생성자를 호출하면 최초로 생성된 객체를 `return` 해준다.
+
+#### GameManager 예제
+
+- `GameManager는` 어디서든 접근할 수 있고 객체는 오직 1개만 존재.
+
+  1. `MonoBehaviour` Class를 상속 O
+
+     - `GameObject`로 관리
+       > `GameObject.Find("@GameManager");` 이용
+
+     ```cs
+     using System.Collections;
+     using System.Collections.Generic;
+     using UnityEngine;
+
+     public class GameManager : MonoBehaviour // MonoBehaviour를 상속
+     {
+         private static GameManager instance;    // 유일성 보장
+         public static GameManager Instance
+         {
+             get
+             {
+                 if (instance == null) init();
+                 return instance;
+             }
+         }    // get, Property 이용
+
+         static void init()
+         {
+             // 이름으로 GameManager를 찾음.
+             GameObject go = GameObject.Find("@GameManager");
+             if (go == null)
+             {
+                 // "@GameManager"의 GameObject가 없다면 Object 생성
+                 go = new GameObject { name = "@GameManager" };
+                 go.AddComponent<GameManager>();   // Script 컴포넌트 추가
+             }
+             // 삭제하지 못하게 함, Scene이 이동해도 제거되지 않음.
+             DontDestroyOnLoad(go);
+             instance = go.GetComponent<GameManager>();
+         }
+     }
+     ```
+
+  2. `MonoBehaviour` Class를 상속 X
+
+     - `Scene` 이동에 신경쓸 필요 없는 장점이 있다.
+     - 눈에 보이지 않는 단점으로 보통은 1번 방법 사용
+
+     ```cs
+     public class GameManager    // MonoBehaviour를 상속받지 않음.
+     {
+         private static GameManager instance;    // 유일성 보장
+         public static GameManager Instance
+         {
+             // get, property 이용
+             get
+             {
+                 if (instance == null) instance = new GameManager();
+                 return instance;
+             }
+         }
+         public GameManager()
+         {
+             // 초기화 코드
+         }
+     }
+     ```
