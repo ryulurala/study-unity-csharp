@@ -6,4 +6,4 @@
 
 - [Total](doc/total.md)
 
-1. [Unity 기초](doc/unity-outline.md)
+1. [Unity 기초 + Component & Singleton Pattern](doc/unity-outline.md)
