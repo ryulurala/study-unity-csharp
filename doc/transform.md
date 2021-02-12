@@ -164,4 +164,94 @@ date: "2021-02-12"
        > Vector의 방향 단위 벡터: 크기(`Magnitude`)가 1  
        > 각 `x`, `y`, `z`를 `magnitude`로 나눠준 값
 
+### Rotation
+
+- `transform.rotation(Quaternion)`
+  > `eulerAngle`보다 사용 권장
+- `transform.eulerAngles(Vector3)`
+
+  > 절댓값으로 넣어줘야 함  
+  > **`+=(Increment)` 사용 X**  
+  > **공식 문서**: `Increment`를 사용할 경우 360도가 넘어가 오작동 발생
+
+- |           `EulerAngles`           |           `Quaternion`            |
+  | :-------------------------------: | :-------------------------------: |
+  |              x, y, z              |        x, y, z, w: 사원수         |
+  |           Vector3 사용            |      Vector3를 변환해서 사용      |
+  |    `Gimbal Lock` 문제 **발생**    |    `Gimbal Lock` 문제 **해결**    |
+  | `transform.eulerAngles = Vector3` | `transform.rotation = Quaternion` |
+
+- `Gimbal Lock` 문제
+  > 각 축의 연관성으로 회전을 계속하면 축들이 겹쳐 회전이 먹통이 되는 문제  
+  > `Quaternion` 으로 해결
+
+#### Y축을 기준으로 회전 예제
+
+1. `transform.eulerAngles`
+
+   > 절대적으로 `Vector3`를 대입한다.  
+   > 상태 회전 변수 필요
+
+   ```cs
+   void Update()
+   {
+     yAngle += Time.deltaTime * 100.0f;   // 상태 회전 변수 갱신
+     transform.eulerAngles = new Vector3(0.0f, yAngle, 0.0f);  // 절대적으로 대입
+     // transform.eulerAngles += yAngle;    // 사용 X
+   }
+   ```
+
+2. `transform.Rotate(Vector3)`
+
+   > `Vector3` 대입  
+   > 상대적으로 회전: 현재 회전값 기준
+
+   ```cs
+   void Update()
+   {
+     // 현재 회전 상태 기준으로 회전(상대적)
+     transform.Rotate(new Vector3(0.0f, Time.deltaTime * 100.0f, 0.0f));
+   }
+
+   ```
+
+3. `Quaternion.Euler(Vector3)`
+
+   ```cs
+   void Update()
+   {
+     yAngle += Time.deltaTime * 100.0f;   // 상태 회전 변수 갱신
+
+     // Euler -> Quaternion 변환
+     transform.rotation = Quaternion.Euler(new Vector3(0.0f, _yAngle, 0.0f));
+   }
+   ```
+
+#### 특정 방향 바라보기 예제
+
+- `Quaternion.LookRotation(Vector3)`
+
+  > 원하는 방향을 바라보게 함
+
+  ```cs
+  void Update()
+  {
+      // 월드좌표 기준 바라보게 함
+      transform.rotation = Quaternion.LookRotation(Vector3.forward);
+  }
+  ```
+
+- `Quaternion.Slerp(Vector3, Vector3, float)`
+
+  > 부드럽게 바라보게 함.  
+  > Slerp(현재 방향, 목표 방향, 비율)
+
+  ```cs
+  void Update()
+  {
+      // 현재 방향에서 월드 기준 forward(앞)으로 부드럽게 바라보게 함.
+      transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.forward), 0.3f);
+  }
+  ```
+
 ---
