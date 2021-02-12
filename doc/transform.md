@@ -144,4 +144,24 @@ date: "2021-02-12"
 
   ```
 
+### Vector3
+
+- `Transform`은 `Vector3`를 사용한다.
+- 멤버변수는 `float x`, `float y`, `float z` 로 구성됨.
+- `Vector3` 용도
+
+  1. 위치 벡터
+     > 좌표로 위치 정의
+  2. 방향 벡터
+
+     > (다음 위치 - 현재 위치)  
+     > "거리(크기)", "방향"을 알아냄
+
+     - transform.position.magnitude
+       > Vector의 크기 반환  
+       > 피타고라스 정리 이용(`x*x + y*y + z*z`)
+     - transform.position.normalized
+       > Vector의 방향 단위 벡터: 크기(`Magnitude`)가 1  
+       > 각 `x`, `y`, `z`를 `magnitude`로 나눠준 값
+
 ---
