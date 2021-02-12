@@ -4,15 +4,16 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    private static GameManager instance;    // 유일성 보장
-    public static GameManager Instance
+    static GameManager instance;    // 유일성 보장
+    static GameManager Instance { get { if (instance == null) init(); return instance; } }    // get, Property 이용
+
+    InputManager input = new InputManager();
+    public static InputManager Input { get { return Instance.input; } }
+
+    void Update()
     {
-        get
-        {
-            if (instance == null) init();
-            return instance;
-        }
-    }    // get, Property 이용
+        input.OnUpdate();   // 이벤트를 체크
+    }
 
     static void init()
     {
