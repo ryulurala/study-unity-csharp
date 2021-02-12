@@ -43,6 +43,8 @@ date: "2021-02-12"
 
 - World 좌표계 기준으로 움직이기
 
+  - ![Preview](/uploads/transfrom/move-world-base.gif)
+
   ```cs
   using System.Collections;
   using System.Collections.Generic;
@@ -98,6 +100,8 @@ date: "2021-02-12"
 
 - `TransformDirection()`을 이용한 오브젝트 기준 움직이기
 
+  - ![Preview](/uploads/transfrom/move-object-base1.gif)
+
   ```cs
   void Update()
   {
@@ -118,6 +122,8 @@ date: "2021-02-12"
 - Local 좌표계로 이동해줌.
 
 - 오브젝트 기준으로 움직이기
+
+  - ![Preview](/uploads/transfrom/move-object-base2.gif)
 
   ```cs
   using System.Collections;
@@ -187,12 +193,15 @@ date: "2021-02-12"
 
 #### Y축을 기준으로 회전 예제
 
+- ![Preview](/uploads/transfrom/rotate-y.gif)
+
 1. `transform.eulerAngles`
 
    > 절대적으로 `Vector3`를 대입한다.  
    > 상태 회전 변수 필요
 
    ```cs
+   float yAngle = 0.0f;
    void Update()
    {
      yAngle += Time.deltaTime * 100.0f;   // 상태 회전 변수 갱신
@@ -218,6 +227,7 @@ date: "2021-02-12"
 3. `Quaternion.Euler(Vector3)`
 
    ```cs
+   float yAngle = 0.0f;
    void Update()
    {
      yAngle += Time.deltaTime * 100.0f;   // 상태 회전 변수 갱신
@@ -233,6 +243,8 @@ date: "2021-02-12"
 
   > 원하는 방향을 바라보게 함
 
+  - ![Preview](/uploads/transfrom/look.gif)
+
   ```cs
   void Update()
   {
@@ -245,6 +257,8 @@ date: "2021-02-12"
 
   > 부드럽게 바라보게 함.  
   > Slerp(현재 방향, 목표 방향, 비율)
+
+  - ![Preview](/uploads/transfrom/look-slerp.gif)
 
   ```cs
   void Update()
