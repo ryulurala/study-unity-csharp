@@ -254,4 +254,84 @@ date: "2021-02-12"
   }
   ```
 
+### Input-Manager
+
+- `Listener` 역할
+- 사용자 입력을 체크하고 이벤트로 실행한다.
+
+1. `InputManager` Class 작성
+
+   ```cs
+   public class InputManager   // MonoBehaviour를 상속 X
+   {
+       public Action KeyAction = null;
+
+       public void OnUpdate()  // Listener
+       {
+           if (!Input.anyKey) return;  // 아무 키가 입력되지 않으면
+
+           if (KeyAction != null)  // 이벤트가 등록돼있는지 확인
+               KeyAction.Invoke(); // 모두 알려주고 실행하도록 함.
+       }
+   }
+   ```
+
+2. `GameManager`에서 관리
+
+   ```cs
+   public class GameManager : MonoBehaviour
+   {
+       static GameManager instance;    // 유일성 보장
+       static GameManager Instance { get { if (instance == null) init(); return instance; } }    // get, Property 이용
+
+       InputManager input = new InputManager();
+       public static InputManager Input { get { return Instance.input; } }
+
+       void Update()
+       {
+           input.OnUpdate();   // 이벤트를 체크
+       }
+   }
+   ```
+
+3. `PlayerController`에서 등록
+
+   ```cs
+   public class PlayerController : MonoBehaviour
+   {
+       [SerializeField] float _speed = 10.0f;
+
+       void Start()
+       {
+           // 리스너 등록
+           GameManager.Input.KeyAction -= OnKeyboard;  // 두 번 등록 방지
+           GameManager.Input.KeyAction += OnKeyboard;
+       }
+
+       void OnKeyboard()
+       {
+           if (Input.GetKey(KeyCode.W))
+           {
+               transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.forward), 0.3f);
+               transform.position += Vector3.forward * Time.deltaTime * _speed;
+           }
+           if (Input.GetKey(KeyCode.S))
+           {
+               transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.back), 0.3f);
+               transform.position += Vector3.back * Time.deltaTime * _speed;
+           }
+           if (Input.GetKey(KeyCode.A))
+           {
+               transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.left), 0.3f);
+               transform.position += Vector3.left * Time.deltaTime * _speed;
+           }
+           if (Input.GetKey(KeyCode.D))
+           {
+               transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.right), 0.3f);
+               transform.position += Vector3.right * Time.deltaTime * _speed;
+           }
+       }
+   }
+   ```
+
 ---
