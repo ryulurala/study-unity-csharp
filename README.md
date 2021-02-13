@@ -8,5 +8,6 @@
 
 1. [Unity 기초 + Component & Singleton Pattern](doc/unity-outline.md)
 2. [Transform + Moving Character](/doc/transform.md)
+3. [ResourceManager + Directory Policy](/doc/resource-manage.md)
 
 ---
