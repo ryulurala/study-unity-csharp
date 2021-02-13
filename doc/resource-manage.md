@@ -1,7 +1,7 @@
 ---
 title: "Resource Managing"
 category: Unity-Framework
-tags: [unity, prefab]
+tags: [unity, prefab, resource-manager, gameObject]
 date: "2021-02-13"
 ---
 
@@ -70,5 +70,109 @@ date: "2021-02-13"
   }
   class Prefab { }
   ```
+
+### Resource Manager
+
+#### Prefab -> GameObject 예제
+
+- `Project`에 있는 Prefab을 PrefabTest Script의 `Inspector` 이용
+
+  - ![Preview]()
+
+  ```cs
+  public class PrefabTest : MonoBehaviour
+  {
+      [SerializeField] GameObject prefab; // prefab을 담음
+      GameObject tank;
+
+      void Start()
+      {
+          tank = Instantiate(prefab);   // Prefab -> GameObject
+
+          Destroy(tank, 3.0f);  // 3초 후에 삭제
+      }
+  }
+  ```
+
+#### Resource Manger [X]
+
+- Test
+
+  - ![Preview]()
+
+  ```cs
+  public class PrefabTest : MonoBehaviour
+  {
+      GameObject prefab;  // Prefab을 담을 GameObject
+      GameObject tank;
+
+      void Start()
+      {
+          // "Asset/Resource"가 "/"(root) 에서 불러오기
+          prefab = Resources.Load<GameObject>("Prefabs/Tank");
+          tank = Instantiate(prefab);
+
+          Destroy(tank, 3.0f);  // 3초 후에 제거
+      }
+  }
+  ```
+
+#### Resource Manger [O]
+
+1. Resource Manager 추가
+
+   ```cs
+   public class ResourceManager    // MonoBehaviour 상속 X
+   {
+       public T Load<T>(string path) where T : Object
+       {
+           return Resources.Load<T>(path);
+       }
+
+       public GameObject Instantiate(string path, Transform parent = null)
+       {
+           GameObject prefab = Load<GameObject>($"Prefabs/{path}");
+           if (prefab == null)
+           {
+               Debug.Log($"Failed to load prefab: {prefab}");
+               return null;
+           }
+           return Object.Instantiate(prefab, parent);  // Object의 Instantiate
+       }
+
+       public void Destroy(GameObject gameObject)
+       {
+           if (gameObject == null) return;
+
+           Object.Destroy(gameObject);
+       }
+   }
+   ```
+
+2. GameManager에 ResourceManager 추가
+
+   ```cs
+   ResourceManager _resorce = new ResourceManager();
+
+   public static ResourceManager Resource { get { return Instance._resorce; } }
+   ```
+
+3. Test
+
+   - ![Preview]()
+
+   ```cs
+   public class PrefabTest : MonoBehaviour
+   {
+       GameObject tank;
+
+       void Start()
+       {
+           tank = GameManager.Resource.Instantiate("Tank");
+
+           Destroy(tank, 3.0f);
+       }
+   }
+   ```
 
 ---
