@@ -175,4 +175,29 @@ date: "2021-02-13"
    }
    ```
 
+### 폴더 정리
+
+- `Resources`
+  > Scene에서 사용하는 리소스 모음
+  - `Prefabs`
+    > Game에서 사용할 조립형 GameObject 모음
+  - `Arts`
+    > 디자이너 분이 주시는 Art 모음(ex. Charater)
+    - `Models`
+      > 해당 Art에서의 Model 모음  
+      > Prefab을 만들기 위한 Asset
+    - `Sounds`
+      > 해당 Art에서의 Sound 모음
+    - `Textures`
+      > 해당 Art에서의 Model들의 Texture 모음
+    - `Materials`
+      > 해당 Art에서의 Model들의 Material 모음  
+      > Texture들을 모아 붙인 재질
+    - `Animations`
+      > 해당 Art에서의 Model들의 Animation 모음
+- `Scenes`
+  > Unity 에서 사용하는 Scene 모음
+- `Scripts`
+  > `C#` Scripts
+
 ---
