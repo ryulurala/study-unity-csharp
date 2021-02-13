@@ -77,7 +77,7 @@ date: "2021-02-13"
 
 - `Project`에 있는 Prefab을 PrefabTest Script의 `Inspector` 이용
 
-  - ![Preview]()
+  - ![Preview](/uploads/resource-manager/prefab-to-gameobject.gif)
 
   ```cs
   public class PrefabTest : MonoBehaviour
@@ -98,7 +98,7 @@ date: "2021-02-13"
 
 - Test
 
-  - ![Preview]()
+  - ![Preview](/uploads/resource-manager/prefab-to-gameobject.gif)
 
   ```cs
   public class PrefabTest : MonoBehaviour
@@ -159,7 +159,7 @@ date: "2021-02-13"
 
 3. Test
 
-   - ![Preview]()
+   - ![Preview](/uploads/resource-manager/prefab-to-gameobject.gif)
 
    ```cs
    public class PrefabTest : MonoBehaviour
