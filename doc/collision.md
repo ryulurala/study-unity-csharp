@@ -1,7 +1,7 @@
 ---
 title: "Collision"
 category: Unity-Framework
-tags: [unity, collision, collider, rigidbody, is-kinematic, trigger]
+tags: [unity, collision, collider, rigidbody, is-kinematic, trigger, ray-cast]
 date: "2021-02-14"
 ---
 
@@ -61,5 +61,77 @@ date: "2021-02-14"
   void OnCollisionStay(Collision other) { }   // 발생 중(N번)
   void OnCollisionExit(Collision other) { }   // 발생 끝(1번)
   ```
+
+### Raycast
+
+- 광선을 쏴서 충돌 정보를 추출
+
+#### Physics.Raycast(), Physics.RaycastAll(), Debug.DrawRay()
+
+|                               `Physics.Raycast()`                                |                   `Physics.RaycastAll()`                   |                           `Debug.DrawRay()`                            |
+| :------------------------------------------------------------------------------: | :--------------------------------------------------------: | :--------------------------------------------------------------------: |
+|                                    개발 용도                                     |                         개발 용도                          |                              디버깅 용도                               |
+|                           충돌 발생 여부(`bool`) 반환                            |    충돌 발생 정보를 담은 객체 배열(`RaycastHit[]`) 반환    |                                 `void`                                 |
+|                       처음 충돌한 객체 정보만 알 수 있다.                        |             충돌한 객체 정보 모두 알 수 있다.              |                        충돌 객체 정보 확인 불가                        |
+|                                     가시성 X                                     |                          가시성 X                          |              `Scene`에서 확인 가능, 광선 Color 설정 가능               |
+| (`Vector3 start`, `Vector3 dir`, `RaycastHit hitInfo`, `float maxDistance`), ... | (`Vector3 start`, `Vector3 dir`, `float maxDistance`), ... | (`Vector3 start`, `Vector3 dir`, `Color color`, `float duration`), ... |
+|                  `maxDistance`를 설정 안하면 충돌할 때까지 발사                  |          `maxDistance`를 설정 안하면 끝까지 발사           |                        방향 벡터 크기만큼 발사                         |
+
+#### Debug.DrawRay 예제
+
+- ![preview](/uploads/collision/debug-drawRay.gif)
+
+```cs
+// 현재 position에서 World 기준 (0, 0, 1) 방향으로 Red 색깔로 광선 발사
+Debug.DrawRay(transform.position, Vector3.forward, Color.red);
+```
+
+#### Physics.Racast()
+
+- `Raycast()` 처음 충돌체 정보만 추출 가능
+- ![preview](/uploads/collision/physics-raycast.gif)
+
+```cs
+// 플레이어 기준 forward로 변환
+Vector3 look = transform.TransformDirection(Vector3.forward);
+
+// hit된 정보를 담고 있는 객체
+RaycastHit hit;
+
+// 현재 position+(0, 1, 0)에서 look 방향으로 최대 10의 길이로 광선 발사한 정보를 hit에 저장
+if (Physics.Raycast(transform.position + Vector3.up, look, out hit, 10))
+{
+    // Raycast로 충돌이 발생하면 이름 출력
+    Debug.Log($"RayCast: {hit.collider.gameObject.name}");
+}
+
+// 현재 position+(0, 1, 0)에서 look 방향으로 10의 길이로 Red 색깔로 광선 발사
+Debug.DrawRay(transform.position + Vector3.up, look * 10, Color.red);
+```
+
+#### Physics.RaycastAll()
+
+- `RaycastAll()` 충돌체 정보 모두 추출 가능
+- ![preview](/uploads/collision/physics-raycastAll.gif)
+
+```cs
+// 플레이어 기준 forward로 변환
+Vector3 look = transform.TransformDirection(Vector3.forward);
+
+// 충돌 발생한 정보를 담는 객체 배열
+RaycastHit[] hits;
+
+// 현재 position+(0, 1, 0)에서 look 방향으로 최대 10의 길이로 광선 발사한 정보 객체 배열을 반환
+hits = Physics.RaycastAll(transform.position + Vector3.up, look, 10);
+
+foreach (RaycastHit hit in hits)
+{
+    // 정보를 담고있는 객체 배열 모두 출력
+    Debug.Log($"RayCast: {hit.collider.gameObject.name}");
+}
+
+// 현재 position+(0, 1, 0)에서 look 방향으로 10의 길이로 Red 색깔로 광선 발사
+Debug.DrawRay(transform.position + Vector3.up, look * 10, Color.red);
+```
 
 ---
