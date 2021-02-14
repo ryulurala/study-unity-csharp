@@ -1,7 +1,17 @@
 ---
 title: "Collision"
 category: Unity-Framework
-tags: [unity, collision, collider, rigidbody, is-kinematic, trigger, ray-cast]
+tags:
+  [
+    unity,
+    collision,
+    collider,
+    rigidbody,
+    is-kinematic,
+    trigger,
+    ray-cast,
+    projection,
+  ]
 date: "2021-02-14"
 ---
 
@@ -132,6 +142,28 @@ foreach (RaycastHit hit in hits)
 
 // 현재 position+(0, 1, 0)에서 look 방향으로 10의 길이로 Red 색깔로 광선 발사
 Debug.DrawRay(transform.position + Vector3.up, look * 10, Color.red);
+```
+
+### 투영: Projection
+
+- 3D ---> 2D
+- `World 좌표계(x, y, z)`에서 `Screen 좌표계(x, y)`로 투영(`Prejection`)
+- `Local 좌표계` --`Convert`--> `World 좌표계` --`Projection`--> `Screen 좌표계`
+
+|                            투영 과정                             |
+| :--------------------------------------------------------------: |
+| ![projection process](/uploads/collision/projection-process.gif) |
+
+- ![screen location](/uploads/collision/screen-location.gif)
+
+```cs
+// Screen 좌표 픽셀 반환
+Vector3 pixel = Input.mousePosition;
+Debug.Log($"Screen 좌표의 픽셀: {pixel}");
+
+// Scrrent 비율 좌표(0 ~ 1)
+Vector3 ratio = Camera.main.ScreenToViewportPoint(Input.mousePosition);
+Debug.Log($"Screen 좌표의 비율: {ratio}");
 ```
 
 ---
