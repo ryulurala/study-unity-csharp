@@ -12,6 +12,8 @@ tags:
     ray-cast,
     projection,
     ray,
+    layer-mask,
+    tag,
   ]
 date: "2021-02-14"
 ---
@@ -231,5 +233,59 @@ Debug.Log($"Screen 좌표의 비율: {ratio}");
        Debug.DrawRay(Camera.main.transform.position, ray.direction * 100f, Color.red, 1f);
    }
    ```
+
+### 충돌 판정 최적화
+
+- `Raycasting` 연산은 부하가 많기 때문에 최적화가 필요하다.
+- `LayerMask`와 `Tag`(?)를 이용하여 충돌 판정을 조절한다.
+
+|                 Layer                  |                Tag                 |
+| :------------------------------------: | :--------------------------------: |
+| ![layer](/uploads/collision/layer.png) | ![tag](/uploads/collision/tag.png) |
+
+#### LayerMask
+
+- `Layer`(묶음)별로 충돌 판정을 조절할 수 있다.
+- `Layer` 갯수는 `32`개, Why. `Int(32 bits)`를 이용한 `bit-masking`
+
+  ```cs
+  // 0x00000010, Layer 8, 9만 masking
+  int mask = (1 << 8) | (1 << 9); // OR 연산
+
+  // 위 구문과 동일, string으로 접근
+  LayerMask mask = LayerMask.GetMask("Layer8") | LayerMask.GetMask("Layer9");
+  ```
+
+- Test
+
+  ```cs
+  if (Input.GetMouseButtonDown(0))
+  {
+      // direction을 포함하는 광선
+      Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+      // 0x00000010, Layer 8, 9만 masking
+      int mask = (1 << 8) | (1 << 9);
+
+      RaycastHit hit;
+      if (Physics.Raycast(ray, out hit, 100f, mask))
+      {
+          // Layer8, 9의 충돌체와 발생하면 이름 출력
+          Debug.Log($"Racast Camera: @{hit.collider.gameObject.name}");
+      }
+
+      // 메인 카메라 위치에서 dir 방향으로 100의 길이만큼 1초 동안 빨간색 광선 발사
+      Debug.DrawRay(Camera.main.transform.position, ray.direction * 100f, Color.red, 1f);
+  }
+  ```
+
+#### Tag
+
+- `Layer`는 묶음 표현이면, `Tag`는 하나 or 여러 객체를 표현
+
+```cs
+gameObject.tag; // 해당 객체의 tag 추출
+gameObject.name;  // 해당 객체의 name 추출
+```
 
 ---
