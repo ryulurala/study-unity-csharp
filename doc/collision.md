@@ -11,6 +11,7 @@ tags:
     trigger,
     ray-cast,
     projection,
+    ray,
   ]
 date: "2021-02-14"
 ---
@@ -165,5 +166,70 @@ Debug.Log($"Screen 좌표의 픽셀: {pixel}");
 Vector3 ratio = Camera.main.ScreenToViewportPoint(Input.mousePosition);
 Debug.Log($"Screen 좌표의 비율: {ratio}");
 ```
+
+### Screen(Mouse-Position) to World
+
+- ![screen to world](/uploads/collision/screen-to-world.gif)
+
+1. Version 1
+
+   1. 화면 마우스 위치 --> 월드 좌표계
+   2. 방향 추출(현재 좌표 - 이전 좌표)
+   3. 방향 단위벡터 변환
+   4. Raycasting
+
+   ```cs
+   // LMB 클릭 시(1번)
+   if (Input.GetMouseButtonDown(0))
+   {
+       // 실제 Screen에 Pointing한 마우스 위치(픽셀 좌표)
+       Vector3 inputMouse = Input.mousePosition;
+
+       // World에 Pointing한 마우스 위치
+       Vector3 mousePos = Camera.main.ScreenToWorldPoint(new Vector3(inputMouse.x, inputMouse.y, Camera.main.nearClipPlane));
+
+       // (World에 Pointing된 마우스 위치 - Camera 현재 좌표) = 카메라 방향
+       Vector3 dir = mousePos - Camera.main.transform.position;
+
+       // 단위벡터로 변환(크기가 1)
+       dir = dir.normalized;
+
+       RaycastHit hit;
+       if (Physics.Raycast(Camera.main.transform.position, dir, out hit, 100f))
+       {
+           // Raycast 충돌 발생하면 충돌체 이름 출력
+           Debug.Log($"Racast Camera: @{hit.collider.gameObject.name}");
+       }
+
+       // 메인 카메라 위치에서 dir 방향으로 100의 길이만큼 1초 동안 빨간색 광선 발사
+       Debug.DrawRay(Camera.main.transform.position, dir * 100f, Color.red, 1f);
+   }
+   ```
+
+1. Version 2
+
+   1. `ScreenPointToRay()` 이용하여 화면에 입력된 마우스 위치 광선 추출
+   2. Raycasting
+
+   ```cs
+   if (Input.GetMouseButtonDown(0))
+   {
+       // ScreenToWorldPoint() + direction.normalized
+       Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+       RaycastHit hit;
+
+       // Raycast overload func
+       // ray를 최대 100f 거리만큼 발사하여 충돌체 정보를 hit에 저장
+       if (Physics.Raycast(ray, out hit, 100f))
+       {
+           // Raycast 충돌 발생하면 충돌체 이름 출력
+           Debug.Log($"Racast Camera: @{hit.collider.gameObject.name}");
+       }
+
+       // 메인 카메라 위치에서 dir 방향으로 100의 길이만큼 1초 동안 빨간색 광선 발사
+       Debug.DrawRay(Camera.main.transform.position, ray.direction * 100f, Color.red, 1f);
+   }
+   ```
 
 ---
