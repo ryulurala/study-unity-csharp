@@ -208,7 +208,7 @@ Debug.Log($"Screen 좌표의 비율: {ratio}");
    }
    ```
 
-1. Version 2
+2. Version 2
 
    1. `ScreenPointToRay()` 이용하여 화면에 입력된 마우스 위치 광선 추출
    2. Raycasting
