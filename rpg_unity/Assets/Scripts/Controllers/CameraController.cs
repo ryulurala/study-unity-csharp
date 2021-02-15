@@ -14,13 +14,24 @@ public class CameraController : MonoBehaviour
 
     void LateUpdate()
     {
-        // Update에서 하면 덜덜 거린다.
-        // 카메라가 먼저인지 플레이어가 먼지인지 모른다.
-        // 따라서, LateUpdate 해야 함.
         if (_mode == Define.CameraMode.QuarterView)
         {
-            transform.position = _player.transform.position + _delta;
-            transform.LookAt(_player.transform);    // 플레이어 좌표를 주시하도록 함.
+
+            RaycastHit hit;
+            Debug.DrawRay(_player.transform.position, _delta, Color.blue);
+            if (Physics.Raycast(_player.transform.position, _delta, out hit, _delta.magnitude, LayerMask.GetMask("Wall")))
+            {
+                // 플레이어 ---Ray---> 방해물 --- 카메라일 때,
+                // 플레이어와 가로막힌 것에 대해 거리 차의 0.8f 만큼 카메라를 위치시킨다.
+                float dist = (hit.point - _player.transform.position).magnitude * 0.8f;
+                transform.position = _player.transform.position + _delta.normalized * dist;
+
+            }
+            else
+            {
+                transform.position = _player.transform.position + _delta;
+                transform.LookAt(_player.transform);    // 플레이어 좌표를 주시하도록 함.
+            }
         }
     }
 
