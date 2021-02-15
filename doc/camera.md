@@ -1,7 +1,16 @@
 ---
 title: "Camera"
 category: Unity-Framework
-tags: [unity, camera, target-texture, camera-controller, mouse-event]
+tags:
+  [
+    unity,
+    camera,
+    target-texture,
+    camera-controller,
+    mouse-event,
+    wall,
+    layer-mask,
+  ]
 date: "2021-02-15"
 ---
 
@@ -217,5 +226,42 @@ date: "2021-02-15"
        }
    }
    ```
+
+#### Player와 사이에 벽이 있을 경우
+
+1. `CameraController.cs`: Raycasting
+
+   ```cs
+   void LateUpdate()
+   {
+       if (_mode == Define.CameraMode.QuarterView)
+       {
+
+           RaycastHit hit;
+           Debug.DrawRay(_player.transform.position, _delta, Color.blue);
+           if (Physics.Raycast(_player.transform.position, _delta, out hit, _delta.magnitude, LayerMask.GetMask("Wall")))
+           {
+               // 플레이어 ---Ray---> Wall --- 카메라일 때,
+               float dist = (hit.point - _player.transform.position).magnitude * 0.8f;
+
+               // 플레이어와 가로막힌 것에 대해 거리 차의 0.8f 만큼 카메라를 위치시킨다.
+               transform.position = _player.transform.position + _delta.normalized * dist;
+
+           }
+           else
+           {
+               // 플레이어 ---Ray---> no Wall ---> 카메라일 때,
+               transform.position = _player.transform.position + _delta;
+               transform.LookAt(_player.transform);
+           }
+       }
+   }
+   ```
+
+2. Layer 설정 및 결과
+
+   - |              Layer 설정(`Wall`)               |                             결과                              |
+     | :-------------------------------------------: | :-----------------------------------------------------------: |
+     | ![layer-wall](/uploads/camera/layer-wall.png) | ![player-wall-camera](/uploads/camera/player-wall-camera.gif) |
 
 ---
