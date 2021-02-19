@@ -37,6 +37,7 @@ date: "2021-02-19"
   ![play-animation](/uploads/animation/play-animation.gif)
 
   ```cs
+  bool _moveToDest;
   if (_moveToDest)
   {
       // 움직일 때
@@ -56,3 +57,59 @@ date: "2021-02-19"
       animator.Play("WAIT");
   }
   ```
+
+### Blending Animations
+
+1. Animator Blend Tree 생성
+2. Add Motion
+3. Select Motion
+4. Parameter, Threshold 설정
+   > Automate Thresholds[X]로 하면 수동 설정 가능
+
+|                        1                         |                        2                         |                        3                         |                        4                         |
+| :----------------------------------------------: | :----------------------------------------------: | :----------------------------------------------: | :----------------------------------------------: |
+| ![blending-1](/uploads/animation/blending-1.png) | ![blending-2](/uploads/animation/blending-2.png) | ![blending-3](/uploads/animation/blending-3.png) | ![blending-4](/uploads/animation/blending-4.png) |
+
+- Blending Animation 실행
+
+  > Mathf.Lerp()를 이용한 Parameter 증감을 부드럽게 나타냄
+
+  ![blending-animation](/uploads/animation/blending-animation.gif)
+
+  ```cs
+  bool _moveToDest;
+  float _wait_run_ratio;
+
+  if (_moveToDest)
+  {
+      // 움직일 때
+      // _wait_run_ratio부터 1까지 (10.0f * Time.deltaTime)의 비율로 증가
+      _wait_run_ratio = Mathf.Lerp(_wait_run_ratio, 1, 10.0f * Time.deltaTime);
+
+      // get animator
+      Animator animator = GetComponent<Animator>();
+
+      // Parameter 설정: Parameter에 따라 두 Animation 비율이 전환됨
+      animator.SetFloat("wait_run_ratio", _wait_run_ratio);
+
+      // Blending Animation 실행
+      animator.Play("WAIT_RUN");
+  }
+  else
+  {
+      // 가만히 있을 때
+      // _wait_run_ratio부터 0까지 (10.0f * Time.deltaTime)의 비율로 감소
+      _wait_run_ratio = Mathf.Lerp(_wait_run_ratio, 0, 10.0f * Time.deltaTime);
+
+      // get animator
+      Animator animator = GetComponent<Animator>();
+
+      // Parameter 설정: Parameter에 따라 두 Animation 비율이 전환됨
+      animator.SetFloat("wait_run_ratio", _wait_run_ratio);
+
+      // Blending Animation 실행
+      animator.Play("WAIT_RUN");
+  }
+  ```
+
+---
