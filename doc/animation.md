@@ -194,4 +194,45 @@ void Update()
 }
 ```
 
+### State Machine
+
+- `Parameter` or `Auto`로 `State`를 전환하며 `Animation`을 실행한다.
+
+1. `Animation Clip` 등록
+   > = `State`
+2. `Make Transition`
+3. `Transition` 설정
+   > Transition이 있어야 해당 Animation state로 갈 수 있다.  
+   > Has Exit Time[O] or [X]: 해당 Animation이 끝나야 Transition될 지.
+4. `Condition` 설정
+   > `Parameter` 생성  
+   > `Parameter` 값에 따라 state가 transition 되도록
+
+|                                1                                 |                                2                                 |                                3                                 |                                4                                 |
+| :--------------------------------------------------------------: | :--------------------------------------------------------------: | :--------------------------------------------------------------: | :--------------------------------------------------------------: |
+| ![state-transition-1](/uploads/animation/state-transition-1.png) | ![state-transition-2](/uploads/animation/state-transition-2.png) | ![state-transition-3](/uploads/animation/state-transition-3.png) | ![state-transition-4](/uploads/animation/state-transition-4.png) |
+
+- `speed`값으로 애니메이션 제어
+
+  ![state-machine](/uploads/animation/state-machine.gif)
+
+  ```cs
+  void UpdateIdle()
+  {
+      // Get animator
+      Animator animator = GetComponent<Animator>();
+
+      // Animator Parameter 제어
+      animator.SetFloat("speed", 0);
+  }
+  void UpdateMoving()
+  {
+      // Get animator
+      Animator animator = GetComponent<Animator>();
+
+      // Animator Parameter 제어
+      animator.SetFloat("speed", _speed);
+  }
+  ```
+
 ---
