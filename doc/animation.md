@@ -1,7 +1,7 @@
 ---
 title: "animation"
 category: Unity-Framework
-tags: [unity, animation, animator]
+tags: [unity, animation, animator, state-pattern]
 date: "2021-02-19"
 ---
 
@@ -111,5 +111,87 @@ date: "2021-02-19"
       animator.Play("WAIT_RUN");
   }
   ```
+
+### State Pattern
+
+#### `bool state` + `Update() { if-else }`
+
+- 스파게티 코드가 됨.
+- 유지보수 불가.
+
+```cs
+// bool state
+bool idle;
+bool isMoving;
+bool isSleeping;
+bool isJumping;
+
+void Update()
+{
+    if(isMoving)
+    {
+        // 움직일 때,
+        if(isJumping)
+        {
+            // 움직이면서 점핑할 때
+        }
+        else
+        {
+            // 움직이면서 점핑 안할 때
+        }
+    }
+    else if(isSleeping)
+    {
+        // 잘 때
+    }
+    else if(idle)
+    {
+        // 기본 상태
+    }
+}
+```
+
+#### `Enum State` + `State Func`
+
+- `State`를 `enum`으로 관리.
+- `State`마다 `Function` 정의.
+
+```cs
+public enum PlayerState
+{
+    Idle,
+    Moving,
+    Sleeping,
+    Jumping,
+}
+
+PlayerState _state = PlayerState.idle;
+
+void UpdateIdle(){ }  // idle 상태 코드
+void UpdateMoving(){ }  // moving 상태 코드
+void UpdateSleeping(){ }  // sleeping 상태 코드
+void UpdateJumping(){ } // jumping 상태 코드
+
+void Update()
+{
+    // Tick 마다 State가 전환된다.
+    // 다음 Tick은 idle, 그 다음 Tick은 Moving, ... 등등.
+    switch (_state)
+    {
+        case PlayerState.Idle:
+            UpdateIdle();
+            break;
+        case PlayerState.Moving:
+            UpdateMoving();
+            break;
+        case PlayerState.Sleeping:
+            UpdateSleeping();
+            break;
+        case PlayerState.Jumping:
+            UpdateJumping();
+            break;
+    }
+}
+```
 
 ---
