@@ -12,8 +12,6 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         // 리스너 등록
-        GameManager.Input.KeyAction -= OnKeyboard;  // 두 번 등록 방지
-        GameManager.Input.KeyAction += OnKeyboard;
         GameManager.Input.MouseAction -= OnMouseCliked;     // 두 번 등록 방지
         GameManager.Input.MouseAction += OnMouseCliked;
     }
@@ -34,8 +32,18 @@ public class PlayerController : MonoBehaviour
                 transform.position += dir.normalized * moveDist;
 
                 transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 10 * Time.deltaTime);
-
             }
+        }
+
+        if (_moveToDest)
+        {
+            Animator animator = GetComponent<Animator>();
+            animator.Play("RUN");
+        }
+        else
+        {
+            Animator animator = GetComponent<Animator>();
+            animator.Play("WAIT");
         }
     }
 
@@ -59,31 +67,5 @@ public class PlayerController : MonoBehaviour
 
         // 메인 카메라 위치에서 dir 방향으로 100의 길이만큼 1초 동안 빨간색 광선 발사
         Debug.DrawRay(Camera.main.transform.position, ray.direction * 100f, Color.red, 1f);
-    }
-
-    void OnKeyboard()
-    {
-        if (Input.GetKey(KeyCode.W))
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.forward), 0.3f);
-            transform.position += Vector3.forward * Time.deltaTime * _speed;
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.back), 0.3f);
-            transform.position += Vector3.back * Time.deltaTime * _speed;
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.left), 0.3f);
-            transform.position += Vector3.left * Time.deltaTime * _speed;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.right), 0.3f);
-            transform.position += Vector3.right * Time.deltaTime * _speed;
-        }
-
-        // _moveToDest = false;
     }
 }
