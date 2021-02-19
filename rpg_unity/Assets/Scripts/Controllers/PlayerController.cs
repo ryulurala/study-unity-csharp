@@ -6,7 +6,6 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] float _speed = 10.0f;
-    bool _moveToDest = false;
     Vector3 _destPos;
 
     void Start()
@@ -17,43 +16,62 @@ public class PlayerController : MonoBehaviour
     }
 
     float wait_run_ratio;
-    void Update()
+
+    public enum PlayerState
     {
-        if (_moveToDest)
-        {
-            Vector3 dir = _destPos - transform.position;
-            if (dir.magnitude < 0.0001f)    // float 오차 범위로
-            {
-                // 도착했을 때
-                _moveToDest = false;
-            }
-            else
-            {
-                float moveDist = Mathf.Clamp(_speed * Time.deltaTime, 0, dir.magnitude);
-                transform.position += dir.normalized * moveDist;
+        Idle,
+        Moving,
+        Die,
+    }
 
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 10 * Time.deltaTime);
-            }
-        }
+    void UpdateIdle()
+    {
+        wait_run_ratio = Mathf.Lerp(wait_run_ratio, 0, 10.0f * Time.deltaTime);
+        Animator animator = GetComponent<Animator>();
+        animator.SetFloat("wait_run_ratio", wait_run_ratio);
+        animator.Play("WAIT_RUN");
+    }
 
-        if (_moveToDest)
+    void UpdateMoving()
+    {
+        Vector3 dir = _destPos - transform.position;
+        if (dir.magnitude < 0.0001f)    // float 오차 범위로
         {
-            wait_run_ratio = Mathf.Lerp(wait_run_ratio, 1, 10.0f * Time.deltaTime);
-            Animator animator = GetComponent<Animator>();
-            animator.SetFloat("wait_run_ratio", wait_run_ratio);
-            animator.Play("WAIT_RUN");
+            // 도착했을 때
+            _state = PlayerState.Idle;
         }
         else
         {
-            wait_run_ratio = Mathf.Lerp(wait_run_ratio, 0, 10.0f * Time.deltaTime);
-            Animator animator = GetComponent<Animator>();
-            animator.SetFloat("wait_run_ratio", wait_run_ratio);
-            animator.Play("WAIT_RUN");
+            float moveDist = Mathf.Clamp(_speed * Time.deltaTime, 0, dir.magnitude);
+            transform.position += dir.normalized * moveDist;
+
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 10 * Time.deltaTime);
+        }
+
+        wait_run_ratio = Mathf.Lerp(wait_run_ratio, 1, 10.0f * Time.deltaTime);
+        Animator animator = GetComponent<Animator>();
+        animator.SetFloat("wait_run_ratio", wait_run_ratio);
+        animator.Play("WAIT_RUN");
+    }
+
+    PlayerState _state = PlayerState.Idle;
+
+    void Update()
+    {
+        switch (_state)
+        {
+            case PlayerState.Idle:
+                UpdateIdle();
+                break;
+            case PlayerState.Moving:
+                UpdateMoving();
+                break;
         }
     }
 
     void OnMouseCliked(Define.MouseEvent evt)
     {
+        if (_state == PlayerState.Die) return;
         if (evt != Define.MouseEvent.Click) return;
 
         // ScreenToWorldPoint() + direction.normalized
@@ -67,7 +85,7 @@ public class PlayerController : MonoBehaviour
             // Raycast 충돌 발생하면 목적지로 지정
             _destPos = hit.point;
             Debug.Log($"destPost={_destPos}");
-            _moveToDest = true;
+            _state = PlayerState.Moving;
         }
 
         // 메인 카메라 위치에서 dir 방향으로 100의 길이만큼 1초 동안 빨간색 광선 발사
