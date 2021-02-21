@@ -235,4 +235,36 @@ void Update()
   }
   ```
 
+### KeyFrame Animation
+
+- GameObject에 종속적인 Animation을 Unity Engine에서 제작
+
+  > ex. 카드 뒤집기 in 카드 게임  
+  > 카드에 대해서 Animation을 미리 Artist분이 만드는 것이 아닌  
+  > 게임만을 위한 카드 Animation을 엔진에서 조작한다.
+
+#### KeyFrame Animation 예제
+
+1. `Animation` Tab
+   > `Window`-`Animation`-`Animation`
+2. `KeyFrame Animation`을 만들 `GameObject` 선택 후 `Create`
+   > Animation + Animator Controller 파일이 생성됨.
+3. Add Property
+   - `Transform`: 위치, 회전, 크기 조절
+   - `Mesh Renderer`: 가시성 조절
+   - `Box Collider`: 충돌 여부 조절
+4. `Recoding Mode`
+   > Turn on recoding mode  
+   > `Time`마다 `Property` 변경.  
+   > Turn off recoding mode
+
+|                                  1                                   |                                  2                                   |                                  3                                   |                                  4                                   |
+| :------------------------------------------------------------------: | :------------------------------------------------------------------: | :------------------------------------------------------------------: | :------------------------------------------------------------------: |
+| ![keyFrame-animation-1](/uploads/animation/keyframe-animation-1.png) | ![keyFrame-animation-2](/uploads/animation/keyframe-animation-2.png) | ![keyFrame-animation-3](/uploads/animation/keyframe-animation-3.png) | ![keyFrame-animation-4](/uploads/animation/keyframe-animation-4.png) |
+
+- 결과
+  ![keyFrame-animation-result](/uploads/animation/keyframe-animation-result.gif)
+
+### Animation Event
+
 ---
