@@ -26,10 +26,10 @@ date: "2021-02-21"
   > `부모` ~ `Anchor`까지 비율 연산  
   > `Anchor` ~ `자신`까지 고정 연산
 
-|           Anchors 이론            |                해상도 비율에 따른 버튼 크기 조정                |
+|           Anchors 이론            |                 해상도 비율에 따른 UI 크기 조정                 |
 | :-------------------------------: | :-------------------------------------------------------------: |
 | ![anchor](/uploads/ui/anchor.png) | ![depends-on-resolution](/uploads/ui/depends-on-resoultion.png) |
-|   `부모` ~ `Anchor`: 비율 연산    |           비율 연산만 하도록 Anchor를 크기와 일치시킴           |
+|   `부모` ~ `Anchor`: 비율 연산    |         비율 연산만 하도록 Anchor를 UI 크기와 일치시킴          |
 |    `Anchor` ~ `자신` 고정 연산    |                                                                 |
 
 ---
