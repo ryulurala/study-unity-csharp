@@ -72,7 +72,7 @@ public class PlayerController : MonoBehaviour
         {
             // Raycast 충돌 발생하면 목적지로 지정
             _destPos = hit.point;
-            Debug.Log($"destPost={_destPos}");
+            // Debug.Log($"destPost={_destPos}");
             _state = PlayerState.Moving;
         }
 
