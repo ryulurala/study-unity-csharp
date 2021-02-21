@@ -1,7 +1,7 @@
 ---
 title: "animation"
 category: Unity-Framework
-tags: [unity, animation, animator, state-pattern]
+tags: [unity, animation, animator, state-pattern, keyframe, event]
 date: "2021-02-19"
 ---
 
@@ -266,5 +266,65 @@ void Update()
   ![keyFrame-animation-result](/uploads/animation/keyframe-animation-result.gif)
 
 ### Animation Event
+
+- `Animation`이 실행될 때, 특정 `Frame`에서 `Call-back`방식으로 `Event function`을 실행
+- `Sound`, `Effect` 시점을 맞출 수 있다.
+  > ex) 발이 땅에 닿았을 시점에서 Sound 발생
+
+#### Animation Event 예제
+
+1. `Add event`
+   > 특정 Frame 시점으로 옮김
+2. 해당 `GameObject`에 `Script`로 `Call-back Function` 작성
+
+   > public, private 상관 X
+
+   ```cs
+   public class AddEventTest : MonoBehaviour
+   {
+       void AnimationEventFunction()
+       {
+           Debug.Log("휘리릭~~");
+       }
+   }
+   ```
+
+3. 해당 시점에 `Event Function` 지정
+
+|                               1                                |                               2                                |                               3                                |
+| :------------------------------------------------------------: | :------------------------------------------------------------: | :------------------------------------------------------------: |
+| ![animation-event-1](/uploads/animation/animation-event-1.png) | ![animation-event-2](/uploads/animation/animation-event-2.png) | ![animation-event-3](/uploads/animation/animation-event-3.png) |
+
+- 결과
+  ![animation-event-result](/uploads/animation/animation-event-result.gif)
+
+#### Character Animation Event 예제
+
+1. Model의 Instpector-Animation-Event
+2. `Add Event`
+   > 특정 Frame 시점으로 옮김
+3. `Function` 이름 지정
+   > float, int, string, Object 등 Parameter로 받을 수 있다.  
+   > 여러 개를 설정해도 하나만 받아진다.
+4. 해당 Animation을 사용하는 GameObject에 Script 작성
+
+   > Event Function 이름과 같은 Call-back Function 작성
+
+   ```cs
+   public class PlayerController : MonoBehaviour
+   {
+       void FootSoundEvent(String sound)
+       {
+           Debug.Log(sound);
+       }
+   }
+   ```
+
+|                                         1                                          |                                         2                                          |                                         3                                          |
+| :--------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------: |
+| ![character-animation-event-1](/uploads/animation/character-animation-event-1.png) | ![character-animation-event-2](/uploads/animation/character-animation-event-2.png) | ![character-animation-event-3](/uploads/animation/character-animation-event-3.png) |
+
+- 결과
+  ![character-animation-event-result](/uploads/animation/character-animation-event-result.gif)
 
 ---
