@@ -11,5 +11,6 @@
 3. [ResourceManager + Directory Policy](/doc/resource-manage.md)
 4. [Collision: Rigidbody, Collider, Trigger, Raycast](/doc/collision.md)
 5. [Camera](/doc/camera.md)
+6. [Animation](/doc/animation.md)
 
 ---
