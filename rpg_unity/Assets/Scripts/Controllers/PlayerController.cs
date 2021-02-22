@@ -18,11 +18,11 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        animator = GetComponent<Animator>();
+
         // 리스너 등록
         GameManager.Input.MouseAction -= OnMouseCliked;     // 두 번 등록 방지
         GameManager.Input.MouseAction += OnMouseCliked;
-
-        animator = GetComponent<Animator>();
     }
     void Update()
     {
