@@ -32,4 +32,42 @@ date: "2021-02-21"
 |   `부모` ~ `Anchor`: 비율 연산    |         비율 연산만 하도록 Anchor를 UI 크기와 일치시킴          |
 |    `Anchor` ~ `자신` 고정 연산    |                                                                 |
 
+### Button Event
+
+1. Button Component에서 On Click() 추가
+2. Script 작성
+
+   > pulblic 함수로 만든다.
+
+   ```cs
+   [SerializeField] Text _text;
+   int _score = 0;
+   public void OnButtonClicked()
+   {
+       _score++;
+       _text.text = $"점수: {_score}점";
+   }
+   ```
+
+3. Button Event 실행할 GameObject 연결
+   > 함수를 실행할 Script가 연결된 GameObject
+
+|                         1                         |                         3                         |
+| :-----------------------------------------------: | :-----------------------------------------------: |
+| ![button-event-1](/uploads/ui/button-event-1.png) | ![button-event-3](/uploads/ui/button-event-3.png) |
+
+- 결과
+
+  ![button-event-result](/uploads/ui/button-event-result.gif)
+
+#### Only. UI Click
+
+- InputManager에 추가
+
+  ```cs
+  // UI가 Click된 상태인 지
+  if (EventSystem.current.IsPointerOverGameObject())
+      return;
+  ```
+
 ---
