@@ -1,7 +1,7 @@
 ---
 title: "UI"
 category: Unity-Framework
-tags: [unity, ui, rect-transform, pivot, ahchors]
+tags: [unity, ui, rect-transform, pivot, ahchors, ui-bind, reflection, generic]
 date: "2021-02-21"
 ---
 
@@ -69,5 +69,193 @@ date: "2021-02-21"
   if (EventSystem.current.IsPointerOverGameObject())
       return;
   ```
+
+### UI 자동화
+
+- Button Event 연결
+
+  1. Unity Editor를 이용한 Event 연결
+
+     > 프로젝트 규모가 점점 커질수록 매우 복잡하고 난해함.
+
+     ![ex-unity-engine-component](/uploads/ui/ex-unity-component.png)
+
+  2. Code로 Binding 후 Event 연결
+     1. enum 정의
+        > UI name과 Scene의 GameObject name을 일치시켜 정의
+     2. Binding
+        > `UnityEngine.Object[]`로 모두 모음
+     3. Get GameObject
+        > `enum`값으로 해당 `Component`를 Get.
+
+#### UI Name Binding
+
+1. enum 정의
+
+   > Scene에 해당 `name`을 가진 GameObject가 존재해야 함.
+
+   ```cs
+   // Button 모음
+   enum Buttons
+   {
+       // PointButton 이름의 GameObject 존재
+       PointButton,
+   }
+   // Text 모음
+   enum Texts
+   {
+       // PointText 이름의 GameObject 존재
+       PointText,
+       ScoreText,
+   }
+   // GameObject 모음
+   enum GameObjects
+   {
+       TestObject,
+   }
+   // Image 모음
+   enum Images
+   {
+       ItemIcon,
+   }
+   ```
+
+   - ![same-name](/uploads/ui/same-name.png)
+
+2. Binding
+
+   > C# Reflection 이용  
+   > Generic, `<T>` 이용  
+   > UnityEngine.Object로 모두 참조할 수 있는 점을 이용.
+
+   - Bind()
+     > `Dictionary`에 담기  
+     > `<Type, UnityEngine.Object[]>`
+
+   ```cs
+   public class UI_Base : MonoBehaviour
+   {
+       // Component, GameObject의 부모 클래스인 UnityEngine.Object 모음
+       // (key, value): (Buttons, Buttons[]), (Texts, Text[])
+       Dictionary<Type, UnityEngine.Object[]> _objects = new Dictionary<Type, UnityEngine.Object[]>();
+
+       // C# Reflection, Generic 이용
+       protected void Bind<T>(Type type) where T : UnityEngine.Object
+       {
+           // 이름 변환
+           string[] names = Enum.GetNames(type);
+
+           UnityEngine.Object[] objects = new UnityEngine.Object[names.Length];
+
+           // Dictionary<>에 Add
+           _objects.Add(typeof(T), objects);
+
+           for (int i = 0; i < names.Length; i++)
+           {
+               if (typeof(T) == typeof(GameObject))
+                   objects[i] = Util.FindChild(gameObject, names[i], true);  // GameObject 경우
+               else
+                   objects[i] = Util.FindChild<T>(gameObject, names[i], true); // 그 외.
+
+               // 해당 이름의 GameObject가 없을 경우
+               if (objects[i] == null)
+                   Debug.Log($"Failed to bind: {names[i]}");
+           }
+       }
+   }
+   ```
+
+   - FindChild()
+     > `GameObject type`일 경우  
+     > 그 외 type일 경우
+
+   ```cs
+   public class Util
+   {
+       // GameObject일 경우
+       public static GameObject FindChild(GameObject gameObject, string name = null, bool recursive = false)
+       {
+           // Transform을 찾아 GameObject를 리턴
+           Transform transform = FindChild<Transform>(gameObject, name, recursive);
+           if (transform == null)
+               return null;
+
+           return transform.gameObject;
+       }
+
+       // GameObject가 아닐 경우
+       public static T FindChild<T>(GameObject gameObject, string name = null, bool recursive = false) where T : UnityEngine.Object
+       {
+           if (gameObject == null)
+               return null;
+
+           if (recursive == false)
+           {
+               // 재귀 X, 해당 GameObject의 바로 아래 자식 컴포넌트만
+               for (int i = 0; i < gameObject.transform.childCount; i++)
+               {
+                   Transform transform = gameObject.transform.GetChild(i);
+                   if (string.IsNullOrEmpty(name) || transform.name == name)
+                   {
+                       T component = transform.GetComponent<T>();
+                       if (component != null)
+                           return component;
+                   }
+               }
+           }
+           else
+           {
+               // 재귀 O, 해당 GameObject의 모든 자식 컴포넌트
+               foreach (T component in gameObject.GetComponentsInChildren<T>())
+               {
+                   if (string.IsNullOrEmpty(name) || component.name == name)
+                       return component;
+               }
+           }
+
+           return null;
+       }
+   }
+   ```
+
+3. Get GameObject
+
+   > 상속받는 자식들은 사용 가능 하도록 `protected`
+
+   ```cs
+   protected T Get<T>(int idx) where T : UnityEngine.Object
+   {
+       UnityEngine.Object[] objects = null;
+       if (_objects.TryGetValue(typeof(T), out objects) == false)
+           return null;
+
+       return objects[idx] as T;   // 해당 Type으로 casting
+   }
+
+   protected Text GetText(int idx) { return Get<Text>(idx); }
+   protected Button GetButton(int idx) { return Get<Button>(idx); }
+   protected Image GetImage(int idx) { return Get<Image>(idx); }
+   ```
+
+- 사용
+
+  ```cs
+  void Start()
+  {
+      // Binding by reflection
+      Bind<Button>(typeof(Buttons));
+      Bind<Text>(typeof(Texts));
+      Bind<GameObject>(typeof(GameObjects));
+      Bind<Image>(typeof(Images));
+
+      // Use
+      GetText((int)Texts.ScoreText);  // Text type의 object 리턴
+      GetButton((int)Buttons.PointButton) // // Button type의 object 리턴
+  }
+  ```
+
+#### UI Event Handler
+
+#### `C#` Extension 문법
 
 ---
