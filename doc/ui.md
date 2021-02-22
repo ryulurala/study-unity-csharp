@@ -1,7 +1,19 @@
 ---
 title: "UI"
 category: Unity-Framework
-tags: [unity, ui, rect-transform, pivot, ahchors, ui-bind, reflection, generic]
+tags:
+  [
+    unity,
+    ui,
+    rect-transform,
+    pivot,
+    ahchors,
+    ui-bind,
+    reflection,
+    generic,
+    extension,
+    I..Handler,
+  ]
 date: "2021-02-21"
 ---
 
@@ -237,7 +249,7 @@ date: "2021-02-21"
    protected Image GetImage(int idx) { return Get<Image>(idx); }
    ```
 
-- 사용
+- 예시
 
   ```cs
   void Start()
@@ -256,6 +268,159 @@ date: "2021-02-21"
 
 #### UI Event Handler
 
-#### `C#` Extension 문법
+##### Hard coding: Drag 예제
+
+1. EventHandler Interface를 상속 받는 Script 작성
+
+   ```cs
+   // 인터페이스 구현
+   public class UI_EventHandler : MonoBehaviour, IDragHandler
+   {
+       public void OnDrag(PointerEventData eventData)
+       {
+           // Drag 위치로 계속 Object가 따라오도록
+           transform.position = eventData.position;
+       }
+   }
+   ```
+
+2. Script Component 사용
+   ![connect-script](/uploads/ui/connect-script.png)
+
+- 결과
+
+  ![ui-event-result](/uploads/ui/ui-event-drag.gif)
+
+##### Improve code: Click 예제
+
+1. UI Event 정의
+
+   > `Define.cs`에 정의  
+   > ex) Click, Drag, ...
+
+   ```cs
+   public enum UIEvent
+   {
+       Click,
+       Drag,
+   }
+   ```
+
+2. Event Handler Script 작성
+
+   > IPointerClickHandler: UI Click의 인터페이스  
+   > IDragHandler: UI Drag의 인터페이스  
+   > I...Handler: UI ...의 인터페이스
+
+   - UI_EventHandler
+
+   ```cs
+   public class UI_EventHandler : MonoBehaviour, IPointerClickHandler, IDragHandler
+   {
+       // Click Action(Call-back func) 모음
+       public Action<PointerEventData> OnClickHandler = null;
+       // Drag Action(Call-back func) 모음
+       public Action<PointerEventData> OnDragHandler = null;
+
+       public void OnPointerClick(PointerEventData eventData)
+       {
+           if (OnClickHandler != null)
+               OnClickHandler.Invoke(eventData);
+       }
+       public void OnDrag(PointerEventData eventData)
+       {
+           if (OnDragHandler != null)
+               OnDragHandler.Invoke(eventData);
+       }
+   }
+   ```
+
+3. Event 등록
+
+   > Action 사용  
+   > Component Get or Add 사용  
+   > `C#`의 Extension 문법 사용
+
+   - AddUIEvent()
+
+   ```cs
+   public static void AddUIEvent(GameObject gameObject, Action<PointerEventData> action, Define.UIEvent type = Define.UIEvent.Click)
+   {
+       // 해당 Script Component가 없을 경우 Add
+       // 있을 경우 Get
+       UI_EventHandler eventHandler = Util.GetOrAddComponent<UI_EventHandler>(gameObject);
+
+       switch (type)
+       {
+           case Define.UIEvent.Click:
+               eventHandler.OnClickHandler -= action;  // 두 번 등록 방지
+               eventHandler.OnClickHandler += action;
+               break;
+           case Define.UIEvent.Drag:
+               eventHandler.OnDragHandler -= action;   // 두 번 등록 방지
+               eventHandler.OnDragHandler += action;
+               break;
+       }
+   }
+   ```
+
+   - GetOrAddComponent()
+     > null이 아닐 경우, Get  
+     > null일 경우, Add
+
+   ```cs
+   public class Util
+   {
+       public static T GetOrAddComponent<T>(GameObject gameObject) where T : UnityEngine.Component
+       {
+           T component = gameObject.GetComponent<T>();
+           if (component == null)
+               component = gameObject.AddComponent<T>();
+
+           return component;
+       }
+   }
+   ```
+
+   - AddUIEvent() Extension
+     > `AddUIEvent(gameObject, action, type)` ---> `gameObject.AddUIEvent(action, type)` 사용 가능하도록
+
+   ```cs
+   public static class Extension
+   {
+       public static void AddUIEvent(this GameObject gameObject, Action<PointerEventData> action, Define.UIEvent type = Define.UIEvent.Click)
+       {
+           UI_Base.AddUIEvent(gameObject, action, type);
+       }
+   }
+   ```
+
+- 예시
+
+  ```cs
+  void Start()
+  {
+      // Binding
+      Bind<Button>(typeof(Buttons));
+      Bind<Text>(typeof(Texts));
+      Bind<GameObject>(typeof(GameObjects));
+      Bind<Image>(typeof(Images));
+
+      // Action(Call-back func) 연결
+      // Extension 문법 사용
+      GetButton((int)Buttons.PointButton).gameObject.AddUIEvent(OnButtonClicked, Define.UIEvent.Click);
+  }
+
+  int _score = 0;
+  public void OnButtonClicked(PointerEventData data)
+  {
+      // Click할 때마다 점수 증가
+      _score++;
+      GetText((int)Texts.ScoreText).text = $"점수: {_score}점";
+  }
+  ```
+
+- 결과
+  ![ui-event-click](/uploads/ui/ui-event-click.gif)
 
 ---
