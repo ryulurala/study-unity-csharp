@@ -25,14 +25,9 @@ public class PlayerController : MonoBehaviour
         GameManager.Input.MouseAction += OnMouseCliked;
 
         // temp
-        GameManager.UI.ShowPopupUI<UI_Button>();
-        // StartCoroutine("example");
-    }
+        // GameManager.UI.ShowPopupUI<UI_Button>();
+        GameManager.UI.ShowSceneUI<UI_Inven>();
 
-    IEnumerator example()
-    {
-        yield return new WaitForSeconds(5.0f);  // 5초
-        GameManager.UI.ClosePopupUI();
     }
 
     void Update()

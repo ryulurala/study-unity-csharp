@@ -17,7 +17,16 @@ public class ResourceManager    // MonoBehaviour 상속 X
             Debug.Log($"Failed to load prefab: {prefab}");
             return null;
         }
-        return Object.Instantiate(prefab, parent);  // Object의 Instantiate
+
+        // Object의 Instantiate
+        GameObject go = Object.Instantiate(prefab, parent);
+
+        // (Clone) 없애기
+        int index = go.name.LastIndexOf("(Clone)");
+        if (index > 0)
+            go.name = go.name.Substring(0, index);
+
+        return go;
     }
 
     public void Destroy(GameObject gameObject)
