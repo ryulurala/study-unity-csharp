@@ -17,6 +17,10 @@ tags:
     pop-up-ui,
     scene-ui,
     ui-blocker,
+    panel,
+    image,
+    text,
+    inventory,
   ]
 date: "2021-02-21"
 ---
@@ -609,5 +613,141 @@ date: "2021-02-21"
 | ![blocker-before](/uploads/ui/blocker-before.gif) | ![blocker-1](/uploads/ui/blocker-1.png) | ![blocker-2](/uploads/ui/blocker-2.png) | ![blocker-after](/uploads/ui/blocker-after.gif) |
 
 ### Inventory 예제
+
+1. `Canvas` + `Panel` 생성
+
+   - ![create-panel](/uploads/ui/create-panel.png)
+
+2. `Item` 생성
+   > Image, Text 모두 설정: `Anchor`, `Pivot`, `Size` 등  
+   > 최종적으로 `Prefab`으로 만듦.
+   - ![create-item](/uploads/ui/create-item.png)
+   -
+3. `Layout` 설정: Grid Layout
+   > Cell Size, Spacing
+   - ![set-layout](/uploads/ui/set-layout.png)
+   -
+4. Script 작성
+
+   - `UIManager.cs`
+
+     > 종속적인 UI를 만드는 func
+
+   ```cs
+   public class UIManager
+   {
+       // 종속적인 UI Item을 만드는 func
+       public T MakeSubItem<T>(Transform parent = null, string name = null) where T : UI_Base
+       {
+           // name이 없으면 type의 name으로
+           if (string.IsNullOrEmpty(name))
+               name = typeof(T).Name;
+
+           // Prefab -> Instance
+           GameObject go = GameManager.Resource.Instantiate($"UI/SubItem/{name}");
+
+           // Parent 설정
+           if (parent != null)
+               go.transform.SetParent(parent.transform);
+
+           return Util.GetOrAddComponent<T>(go);
+       }
+   }
+   ```
+
+   - `UI_Inven.cs`
+
+     > 인벤토리와 관련된 Script  
+     > 인벤토리 아이템을 만든다.
+
+   ```cs
+   // 인벤토리 관한 Script
+   public class UI_Inven : UI_Scene
+   {
+       enum GameObjects
+       {
+           GridPanel,
+       }
+       void Start()
+       {
+           init();
+       }
+
+       public override void init()
+       {
+           // Set Canvas
+           base.init();
+
+           // Binding
+           Bind<GameObject>(typeof(GameObjects));
+
+           // Component get
+           GameObject gridPanel = Get<GameObject>((int)GameObjects.GridPanel);
+
+           // 처음에 혹시나 있을 아이템 모두 지워줌.
+           foreach (Transform child in gridPanel.transform)
+               GameManager.Resource.Destroy(child.gameObject);
+
+           // 인벤토리 정보를 참고해서 채워넣음
+           for (int i = 0; i < 8; i++)
+           {
+               // Prefab 인스턴스화
+               // 종속적인 아이템 부모랑 연결
+               GameObject item = GameManager.UI.MakeSubItem<UI_Inven_Item>(parent: gridPanel.transform).gameObject;
+
+               // UI_Inven_Item Component 연결
+               // Extension 문법
+               UI_Inven_Item invenIten = item.GetOrAddComponent<UI_Inven_Item>();
+
+               // Instanse화는 Awake()까지 호출
+               // Scene Update 시 Start() 호출
+               invenIten.SetInfo($"unity {i}");
+           }
+       }
+   }
+   ```
+
+   - `UI_Inven_Item.cs`
+     > 인벤토리 아이템과 관련된 정보  
+     > 정보들 연결
+
+   ```cs
+   public class UI_Inven_Item : UI_Base
+   {
+       string _name; // text
+
+       enum GameObjects
+       {
+           ItemIcon, // 동일한 name 지정
+           ItemText,
+       }
+
+       // Prefab -> Instance -> Awake() -> Scene Update() -> Start()
+       void Start()
+       {
+           init();
+       }
+
+       public override void init()
+       {
+           Bind<GameObject>(typeof(GameObjects));
+
+           Get<GameObject>((int)GameObjects.ItemText).GetComponent<Text>().text = _name;
+
+           // Click Event 추가
+           // Extension 문법
+           Get<GameObject>((int)GameObjects.ItemIcon).BindEvent((PointerEventData) => { Debug.Log($"Item Click: {_name}"); });
+       }
+
+       public void SetInfo(string name)
+       {
+           // text 설정
+           _name = name;
+       }
+   }
+   ```
+
+- 결과
+  - ![inventory-result](/uploads/ui/inventory-result.gif)
 
 ---
