@@ -23,7 +23,18 @@ public class PlayerController : MonoBehaviour
         // 리스너 등록
         GameManager.Input.MouseAction -= OnMouseCliked;     // 두 번 등록 방지
         GameManager.Input.MouseAction += OnMouseCliked;
+
+        // temp
+        GameManager.UI.ShowPopupUI<UI_Button>();
+        // StartCoroutine("example");
     }
+
+    IEnumerator example()
+    {
+        yield return new WaitForSeconds(5.0f);  // 5초
+        GameManager.UI.ClosePopupUI();
+    }
+
     void Update()
     {
         switch (_state)

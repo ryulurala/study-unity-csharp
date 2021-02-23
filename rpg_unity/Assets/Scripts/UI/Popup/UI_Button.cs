@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UI_Button : UI_Base
+public class UI_Button : UI_Popup
 {
 
     enum Buttons
@@ -30,6 +30,13 @@ public class UI_Button : UI_Base
 
     void Start()
     {
+        init();
+    }
+
+    public override void init()
+    {
+        base.init();
+
         // Binding
         Bind<Button>(typeof(Buttons));
         Bind<Text>(typeof(Texts));
