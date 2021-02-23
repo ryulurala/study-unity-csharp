@@ -13,6 +13,10 @@ tags:
     generic,
     extension,
     I..Handler,
+    ui-manager,
+    pop-up-ui,
+    scene-ui,
+    ui-blocker,
   ]
 date: "2021-02-21"
 ---
@@ -422,5 +426,188 @@ date: "2021-02-21"
 
 - 결과
   ![ui-event-click](/uploads/ui/ui-event-click.gif)
+
+### UI Manager
+
+- UI 종류 2가지
+
+  - Pop-Up UI
+
+    > 팝업창으로 보여지는 UI  
+    > ex) NPC에게 말 걸 때, 인벤토리 창 등.
+
+    ```cs
+    public class UI_Popup : UI_Base
+    {
+        public virtual void init()
+        {
+            GameManager.UI.SetCanvas(gameObject, true);
+        }
+
+        public virtual void ClosePopupUI()
+        {
+            GameManager.UI.ClosePopupUI(this);
+        }
+    }
+    ```
+
+    - 모든 Pop-up UI는 `UI_Popup` class를 상속받는다.
+
+  - Scene UI
+
+    > 고정적으로 보이는 UI  
+    > HP, MP, EXP(경험치) 등
+
+    ```cs
+    public class UI_Scene : UI_Base
+    {
+        public virtual void init()
+        {
+            GameManager.UI.SetCanvas(gameObject, false);
+        }
+    }
+    ```
+
+    - 모든 Scene UI는 `UI_Scene` class를 상속받는다.
+
+- UI Manager
+
+  > Canvas의 Sort order를 관리  
+  > Pop-up UI, Scene UI 관리
+
+  - SetCanvas()
+    > Canvas의 order를 설정하는 func
+  - ShowPopupUI()
+    > Pop-up UI를 생성 및 보여주기
+  - ShowSceneUI()
+    > Scene UI를 생성 및 보여주기
+  - ClosePopupUI()
+    > Pop-up UI 닫기
+  - CloseAllPopupUI()
+    > Pop-up UI 모두 닫기
+
+  ```cs
+  public class UIManager
+  {
+      int _order = 8; // 순서, (0 ~ 7)은 예약
+      Stack<UI_Popup> _popupStack = new Stack<UI_Popup>();  // Pop-up UIs
+      UI_Scene _SceneUI = null;   // Scene UI
+
+      // root GameObject로 Bind 하는 func --- for. Scene 관리
+      public GameObject Root
+      {
+          get
+          {
+              GameObject root = GameObject.Find("@UI_Root");
+              if (root == null)
+                  root = new GameObject { name = "@UI_Root" };
+              return root;
+          }
+      }
+
+      // Canvas order를 설정하는 func
+      public void SetCanvas(GameObject go, bool sort = true)
+      {
+          Canvas canvas = Util.GetOrAddComponent<Canvas>(go);
+          canvas.renderMode = RenderMode.ScreenSpaceOverlay;  // Render mode
+
+          // Canvas 안에 Canvas가 중첩할 때, 자식은 자신만의 sorting order를 가짐
+          canvas.overrideSorting = true;
+
+          if (sort)
+          {
+              // pop-up UI 해당
+              canvas.sortingOrder = _order;
+              _order++;
+          }
+          else
+          {
+              // Scene UI 해당
+              canvas.sortingOrder = 0;
+          }
+      }
+
+      // Scene UI를 Show func
+      public T ShowSceneUI<T>(string name = null) where T : UI_Scene
+      {
+          // name이 없을 경우 T(type)의 이름으로
+          if (string.IsNullOrEmpty(name))
+              name = typeof(T).Name;
+
+          // Prefab 인스턴스화
+          GameObject go = GameManager.Resource.Instantiate($"UI/Scene/{name}");
+          T sceneUI = Util.GetOrAddComponent<T>(go);
+          _SceneUI = sceneUI;
+
+          go.transform.SetParent(Root.transform);
+
+          return sceneUI;
+      }
+
+      // Pop-up UI를 Show func
+      public T ShowPopupUI<T>(string name = null) where T : UI_Popup
+      {
+          // name이 없을 경우 T(type)의 이름으로
+          if (string.IsNullOrEmpty(name))
+              name = typeof(T).Name;
+
+          // Prefab 인스턴스화
+          GameObject go = GameManager.Resource.Instantiate($"UI/Popup/{name}");
+          T popup = Util.GetOrAddComponent<T>(go);
+          _popupStack.Push(popup);
+
+          go.transform.SetParent(Root.transform);
+
+          return popup;
+      }
+
+      // Pop-up UI Close func --- safe
+      public void ClosePopupUI(UI_Popup popup)
+      {
+          if (_popupStack.Count == 0)
+              return;
+
+          if (_popupStack.Peek() != popup)
+          {
+              Debug.Log("Close Popup Failed");
+              return;
+          }
+
+          ClosePopupUI();
+      }
+
+      // Pop-up UI Close func
+      public void ClosePopupUI()
+      {
+          if (_popupStack.Count == 0)
+              return;
+
+          UI_Popup popup = _popupStack.Pop();
+          _order--;
+
+          GameManager.Resource.Destroy(popup.gameObject);
+          popup = null; // 더 이상 접근 못하도록
+      }
+
+      // Pop-up UI CloseAll func
+      public void CloseAllPopupUI()
+      {
+          while (_popupStack.Count > 0)
+              ClosePopupUI();
+      }
+  }
+  ```
+
+#### Pop-up UI Blocker
+
+- Pop-up UI Stack이 쌓였을 경우, 이전의 Pop-up UI는 선택 못하도록 함.
+- Canvas의 자식 중 첫 번째를 `Blocker`로 사용
+  > Image Component 사용
+
+|                      Before                       |          Image Component 생성           |     위치: 맨 위, Raycast Target [O]     |                      After                      |
+| :-----------------------------------------------: | :-------------------------------------: | :-------------------------------------: | :---------------------------------------------: |
+| ![blocker-before](/uploads/ui/blocker-before.gif) | ![blocker-1](/uploads/ui/blocker-1.png) | ![blocker-2](/uploads/ui/blocker-2.png) | ![blocker-after](/uploads/ui/blocker-after.gif) |
+
+### Inventory 예제
 
 ---
