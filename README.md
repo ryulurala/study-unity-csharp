@@ -13,5 +13,6 @@
 5. [Camera](/doc/camera.md)
 6. [Animation](/doc/animation.md)
 7. [UI](/doc/ui.md)
+8. [Scene Managing](/doc/scene-manage.md)
 
 ---
