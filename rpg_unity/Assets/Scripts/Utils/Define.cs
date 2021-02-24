@@ -4,6 +4,13 @@ using UnityEngine;
 
 public class Define
 {
+    public enum Scene
+    {
+        UnKnown,    // default
+        Login,
+        Lobby,
+        Game,
+    }
     public enum UIEvent
     {
         Click,
