@@ -10,11 +10,13 @@ public class GameManager : MonoBehaviour
     InputManager _input = new InputManager();
     ResourceManager _resorce = new ResourceManager();
     SceneManagerEx _scene = new SceneManagerEx();
+    SoundManager _sound = new SoundManager();
     UIManager _ui = new UIManager();
 
     public static InputManager Input { get { return Instance._input; } }
     public static ResourceManager Resource { get { return Instance._resorce; } }
     public static SceneManagerEx Scene { get { return Instance._scene; } }
+    public static SoundManager Sound { get { return Instance._sound; } }
     public static UIManager UI { get { return Instance._ui; } }
 
     void Update()
@@ -34,5 +36,14 @@ public class GameManager : MonoBehaviour
 
         DontDestroyOnLoad(go);  // 삭제하지 못하게 함, Scene이 이동해도 제거되지 않음.
         s_instance = go.GetComponent<GameManager>();
+        s_instance._sound.init();
+    }
+
+    public static void Clear()
+    {
+        Input.Clear();
+        Sound.Clear();
+        Scene.Clear();
+        UI.Clear();
     }
 }

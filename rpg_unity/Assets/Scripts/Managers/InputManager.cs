@@ -33,4 +33,10 @@ public class InputManager   // 입력을 체크하고 Event로 전파해줌
             }
         }
     }
+
+    public void Clear()
+    {
+        KeyAction = null;
+        MouseAction = null;
+    }
 }
