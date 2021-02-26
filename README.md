@@ -15,5 +15,6 @@
 7. [UI](/doc/ui.md)
 8. [Scene Managing](/doc/scene-manage.md)
 9. [Sound Managing](/doc/scene-manage.md)
+10. [Object Pooling](/doc/object-pooling.md)
 
 ---
