@@ -22,6 +22,7 @@ public class GameScene : BaseScene
 
         // GameManager.UI.ShowPopupUI<UI_Button>();
         GameManager.UI.ShowSceneUI<UI_Inven>();
+
     }
     public override void Clear()
     {

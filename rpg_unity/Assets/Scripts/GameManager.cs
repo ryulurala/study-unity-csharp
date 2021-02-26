@@ -8,12 +8,14 @@ public class GameManager : MonoBehaviour
     static GameManager Instance { get { if (s_instance == null) init(); return s_instance; } }    // get, Property 이용
 
     InputManager _input = new InputManager();
+    PoolManager _pool = new PoolManager();
     ResourceManager _resorce = new ResourceManager();
     SceneManagerEx _scene = new SceneManagerEx();
     SoundManager _sound = new SoundManager();
     UIManager _ui = new UIManager();
 
     public static InputManager Input { get { return Instance._input; } }
+    public static PoolManager Pool { get { return Instance._pool; } }
     public static ResourceManager Resource { get { return Instance._resorce; } }
     public static SceneManagerEx Scene { get { return Instance._scene; } }
     public static SoundManager Sound { get { return Instance._sound; } }
@@ -36,6 +38,8 @@ public class GameManager : MonoBehaviour
 
         DontDestroyOnLoad(go);  // 삭제하지 못하게 함, Scene이 이동해도 제거되지 않음.
         s_instance = go.GetComponent<GameManager>();
+
+        s_instance._pool.init();
         s_instance._sound.init();
     }
 
@@ -45,5 +49,6 @@ public class GameManager : MonoBehaviour
         Sound.Clear();
         Scene.Clear();
         UI.Clear();
+        Pool.Clear();
     }
 }

@@ -6814,6 +6814,7 @@ GameObject:
   - component: {fileID: 20947770576915422}
   - component: {fileID: 20947770584343928}
   - component: {fileID: 1659046131625382902}
+  - component: {fileID: 3857754963932222937}
   m_Layer: 0
   m_Name: unitychan
   m_TagString: Untagged
@@ -6847,7 +6848,7 @@ Animator:
   m_GameObject: {fileID: 20947770577082366}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 664820033a00af3438224105325970e9, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -6869,3 +6870,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 10
+--- !u!114 &3857754963932222937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 20947770577082366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66ab8da60ae2dbf4590d7b0b6b8749ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsUsing: 0
