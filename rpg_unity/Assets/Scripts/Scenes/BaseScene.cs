@@ -11,11 +11,11 @@ public abstract class BaseScene : MonoBehaviour
     // Scene에 관련되므로 최초로 실행
     void Awake()
     {
-        init();
+        Init();
     }
 
     // 추가할 코드가 있으므로
-    protected virtual void init()
+    protected virtual void Init()
     {
         Object obj = GameObject.FindObjectOfType(typeof(EventSystem));
         if (obj == null)

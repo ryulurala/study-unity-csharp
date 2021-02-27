@@ -15,9 +15,9 @@ public class LoginScene : BaseScene
             GameManager.Scene.LoadScene(Define.Scene.Game); // sync
         }
     }
-    protected override void init()
+    protected override void Init()
     {
-        base.init();
+        base.Init();
 
         SceneType = Define.Scene.Login;
 

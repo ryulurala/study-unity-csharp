@@ -77,7 +77,7 @@ public class PoolManager
     Dictionary<string, Pool> _pool = new Dictionary<string, Pool>();
     Transform _root;    // Pooling Objects의 제일 상위
 
-    public void init()
+    public void Init()
     {
         // root 설정
         if (_root == null)

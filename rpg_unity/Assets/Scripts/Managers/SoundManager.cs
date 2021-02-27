@@ -7,7 +7,7 @@ public class SoundManager
     AudioSource[] _audioSources = new AudioSource[(int)Define.Sound.MaxCount];
     Dictionary<string, AudioClip> _audioClips = new Dictionary<string, AudioClip>();
 
-    public void init()
+    public void Init()
     {
         // root gameObject
         GameObject root = GameObject.Find("@Sound");

@@ -5,7 +5,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     static GameManager s_instance;    // 유일성 보장
-    static GameManager Instance { get { if (s_instance == null) init(); return s_instance; } }    // get, Property 이용
+    static GameManager Instance { get { if (s_instance == null) Init(); return s_instance; } }    // get, Property 이용
 
     InputManager _input = new InputManager();
     PoolManager _pool = new PoolManager();
@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour
         _input.OnUpdate();   // 이벤트를 체크
     }
 
-    static void init()
+    static void Init()
     {
         GameObject go = GameObject.Find("@GameManager");  // 이름으로 GameManager를 찾음.
         if (go == null)
@@ -39,8 +39,8 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(go);  // 삭제하지 못하게 함, Scene이 이동해도 제거되지 않음.
         s_instance = go.GetComponent<GameManager>();
 
-        s_instance._pool.init();
-        s_instance._sound.init();
+        s_instance._pool.Init();
+        s_instance._sound.Init();
     }
 
     public static void Clear()
