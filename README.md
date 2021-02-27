@@ -17,5 +17,6 @@
 9. [Sound Managing](/doc/sound-manage.md)
 10. [Object Pooling](/doc/object-pooling.md)
 11. [Coroutine](/doc/coroutine.md)
+12. [Data Managing](/doc/data-manage.md)
 
 ---
