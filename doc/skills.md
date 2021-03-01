@@ -1,7 +1,17 @@
 ---
 title: "Unity Skills"
 category: Unity-Framework
-tags: [unity, skills, terrain, light, navigation, nav-mesh-agent, stat]
+tags:
+  [
+    unity,
+    skills,
+    terrain,
+    light,
+    navigation,
+    nav-mesh-agent,
+    stat,
+    mouse-cursor,
+  ]
 date: "2021-03-01"
 ---
 
@@ -89,7 +99,7 @@ public class Stat : MonoBehaviour
 
     void Start()
     {
-        // 나중에는 Data Sheet로 초기화
+        // 나중에는 Data Sheet(.json)로 초기화
         _level = 1;
         _hp = 100;
         _maxHp = 100;
@@ -116,7 +126,7 @@ public class PlayerStat : Stat
 
     void Start()
     {
-        // 나중에는 Data Sheet로 초기화
+        // 나중에는 Data Sheet(.json)로 초기화
         _level = 1;
         _hp = 100;
         _maxHp = 100;
@@ -128,5 +138,78 @@ public class PlayerStat : Stat
     }
 }
 ```
+
+### Mouse Cursor
+
+- 필요에 따라 마우스 커서 변경
+
+1. Cursor Texture 설정
+
+   - |                        Texture type 설정                        |              Default Cursor Texture 설정              |
+     | :-------------------------------------------------------------: | :---------------------------------------------------: |
+     | ![cursor-texture-type](/uploads/skills/cursor-texture-type.png) | ![default-cursor](/uploads/skills/default-cursor.png) |
+
+2. Script 작성
+
+   - `Ray`, `Texture2D` 이용
+   - `SetCursor(Texture2D, Vector3 hotSpot, CursorMode)`
+     > `hotSpot`: 마우스 커서 끝이 가리키는 곳
+   - |                     `hotSpot` 지점                      |
+     | :-----------------------------------------------------: |
+     | ![cursor-hotspot](../uploads/skills/cursor-hotspot.png) |
+
+   ```cs
+   // Cursor Texture
+   Texture2D _attackIcon;
+   Texture2D _handIcon;
+
+   // 매번 Cursor가 바뀌는 것을 방지
+   CursorType _cursorType = CursorType.None;
+
+   void Start()
+   {
+       // Cursor Texture Load
+       _attackIcon = GameManager.Resource.Load<Texture2D>("Textures/Cursors/Attack");
+       _handIcon = GameManager.Resource.Load<Texture2D>("Textures/Cursors/Hand");
+   }
+
+   enum CursorType
+   {
+       None,
+       Hand,
+       Attack,
+   }
+
+   void UpdateMouseCursor()
+   {
+       Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+       RaycastHit hit;
+
+       if (Physics.Raycast(ray, out hit, 100f, LayerMask.GetMask("Ground") | LayerMask.GetMask("Monster")))
+       {
+           // Ground, Monster의 Collider와 Ray가 부딪혔을 경우
+           if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Monster"))
+           {
+               // Monster를 가리켰을 경우
+               if (_cursorType != CursorType.Attack)
+               {
+                   // Attack Cursor가 아닐 경우만
+                   Cursor.SetCursor(_attackIcon, new Vector2(_attackIcon.width / 5, 0), CursorMode.Auto);
+                   _cursorType = CursorType.Attack;
+               }
+           }
+           else
+           {
+               // 그 외를 가리켰을 경우
+               if (_cursorType != CursorType.Hand)
+               {
+                   // Hand Cursor가 아닐 경우만
+                   Cursor.SetCursor(_handIcon, new Vector2(_handIcon.width / 3, 0), CursorMode.Auto);
+                   _cursorType = CursorType.Hand;
+               }
+           }
+       }
+   }
+   ```
 
 ---
