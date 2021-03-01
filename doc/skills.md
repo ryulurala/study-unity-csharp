@@ -1,7 +1,7 @@
 ---
 title: "Unity Skills"
 category: Unity-Framework
-tags: [unity, skills, terrain, light]
+tags: [unity, skills, terrain, light, navigation, nav-mesh-agent]
 date: "2021-03-01"
 ---
 
@@ -44,5 +44,26 @@ date: "2021-03-01"
   - |                          Auto Generate                          |                    Static Object                    |
     | :-------------------------------------------------------------: | :-------------------------------------------------: |
     | ![light-auto-generate](/uploads/skills/light-auto-generate.png) | ![static-object](/uploads/skills/static-object.png) |
+
+### Navigation
+
+- 길찾기 AI를 만들 수 있는 기능
+
+1. Navigation Path를 Bake
+2. 움직일 Object에 Nav Mesh Agent 컴포넌트 연결
+
+   |            1. `Window`-`AI`-`Navigation`             |                    2. Nav Mesh Agent                     |
+   | :--------------------------------------------------: | :------------------------------------------------------: |
+   | ![navigation-window](/uploads/skills/navigation.png) | ![nav-mesh-agent](/uploads/skills/navigation-window.png) |
+
+3. Script 작성
+
+   ```cs
+   // 컴포넌트 불러오기
+   NavMeshAgent nma = gameObject.GetOrAddComponent<NavMeshAgent>();
+
+   // Agent 움직이기
+   nma.Move(dir.normalized * moveDist);
+   ```
 
 ---
