@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -44,15 +45,24 @@ public class PlayerController : MonoBehaviour
     void UpdateMoving()
     {
         Vector3 dir = _destPos - transform.position;
-        if (dir.magnitude < 0.0001f)    // float 오차 범위로
+        if (dir.magnitude < 0.1f)    // float 오차 범위로
         {
             // 도착했을 때
             _state = PlayerState.Idle;
         }
         else
         {
+            NavMeshAgent nma = gameObject.GetOrAddComponent<NavMeshAgent>();
+
             float moveDist = Mathf.Clamp(_speed * Time.deltaTime, 0, dir.magnitude);
-            transform.position += dir.normalized * moveDist;
+
+            Debug.DrawRay(transform.position + Vector3.up * 0.5f, dir.normalized, Color.green);
+            nma.Move(dir.normalized * moveDist);
+            if (Physics.Raycast(transform.position + Vector3.up * 0.5f, dir, 1.0f, LayerMask.GetMask("Block")))
+            {
+                _state = PlayerState.Idle;
+                return;
+            }
 
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 10 * Time.deltaTime);
         }
@@ -78,6 +88,6 @@ public class PlayerController : MonoBehaviour
         }
 
         // 메인 카메라 위치에서 dir 방향으로 100의 길이만큼 1초 동안 빨간색 광선 발사
-        Debug.DrawRay(Camera.main.transform.position, ray.direction * 100f, Color.red, 1f);
+        // Debug.DrawRay(Camera.main.transform.position, ray.direction * 100f, Color.red, 1f);
     }
 }
