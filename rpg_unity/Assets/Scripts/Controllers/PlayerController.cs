@@ -7,21 +7,13 @@ using UnityEngine.AI;
 public class PlayerController : MonoBehaviour
 {
     PlayerStat _stat;
-    Vector3 _destPos;
-    Animator _animator;
-    PlayerState _state = PlayerState.Idle;
-    public enum PlayerState
-    {
-        Idle,
-        Moving,
-        Die,
-        Skill,
-    }
 
     void Start()
     {
         _animator = GetComponent<Animator>();
         _stat = GetComponent<PlayerStat>();
+        _attackIcon = GameManager.Resource.Load<Texture2D>("Textures/Cursors/Attack");
+        _handIcon = GameManager.Resource.Load<Texture2D>("Textures/Cursors/Hand");
 
         // 리스너 등록
         GameManager.Input.MouseAction -= OnMousePressed;     // 두 번 등록 방지
@@ -39,6 +31,21 @@ public class PlayerController : MonoBehaviour
                 UpdateMoving();
                 break;
         }
+
+        UpdateMouseCursor();
+    }
+
+    #region State
+    Vector3 _destPos;
+    Animator _animator;
+    PlayerState _state = PlayerState.Idle;
+
+    public enum PlayerState
+    {
+        Idle,
+        Moving,
+        Die,
+        Skill,
     }
     void UpdateIdle()
     {
@@ -70,6 +77,46 @@ public class PlayerController : MonoBehaviour
         }
         _animator.SetFloat("speed", _stat.MoveSpeed);
     }
+    #endregion
+
+    #region Mouse
+    Texture2D _attackIcon;
+    Texture2D _handIcon;
+    CursorType _cursorType = CursorType.None;
+
+    enum CursorType
+    {
+        None,
+        Hand,
+        Attack,
+    }
+
+    void UpdateMouseCursor()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, 100f, LayerMask.GetMask("Ground") | LayerMask.GetMask("Monster")))
+        {
+            if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Monster"))
+            {
+                if (_cursorType != CursorType.Attack)
+                {
+                    Cursor.SetCursor(_attackIcon, new Vector2(_attackIcon.width / 5, 0), CursorMode.Auto);
+                    _cursorType = CursorType.Attack;
+                }
+            }
+            else
+            {
+                if (_cursorType != CursorType.Hand)
+                {
+                    Cursor.SetCursor(_handIcon, new Vector2(_handIcon.width / 3, 0), CursorMode.Auto);
+                    _cursorType = CursorType.Hand;
+                }
+            }
+        }
+    }
+
     void OnMousePressed(Define.MouseEvent evt)
     {
         if (_state == PlayerState.Die) return;
@@ -91,4 +138,5 @@ public class PlayerController : MonoBehaviour
         // 메인 카메라 위치에서 dir 방향으로 100의 길이만큼 1초 동안 빨간색 광선 발사
         // Debug.DrawRay(Camera.main.transform.position, ray.direction * 100f, Color.red, 1f);
     }
+    #endregion
 }
