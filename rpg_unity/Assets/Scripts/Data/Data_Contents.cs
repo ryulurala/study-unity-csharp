@@ -3,31 +3,35 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-#region Stat
-[Serializable]
-public class Stat
+namespace Data
 {
-    // public으로 하거나 [SerializeField] 사용
-    // 이름 동일해야 함.
-    // type도 자동으로 parsring
-    public int level;
-    public int hp;
-    public int attack;
-}
+    #region Stat
 
-[Serializable]
-public class StatData : ILoader<int, Stat>
-{
-    public List<Stat> stats = new List<Stat>();
-
-    public Dictionary<int, Stat> MakeDict()
+    [Serializable]
+    public class Stat
     {
-        Dictionary<int, Stat> dict = new Dictionary<int, Stat>();
-        foreach (Stat stat in stats)
-            dict.Add(stat.level, stat);
-
-        return dict;
+        // public으로 하거나 [SerializeField] 사용
+        // 이름 동일해야 함.
+        // type도 자동으로 parsring
+        public int level;
+        public int hp;
+        public int attack;
     }
-}
 
-#endregion
+    [Serializable]
+    public class StatData : ILoader<int, Stat>
+    {
+        public List<Stat> stats = new List<Stat>();
+
+        public Dictionary<int, Stat> MakeDict()
+        {
+            Dictionary<int, Stat> dict = new Dictionary<int, Stat>();
+            foreach (Stat stat in stats)
+                dict.Add(stat.level, stat);
+
+            return dict;
+        }
+    }
+
+    #endregion
+}

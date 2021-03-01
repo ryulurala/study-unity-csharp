@@ -4,11 +4,6 @@ using UnityEngine;
 
 public class Define
 {
-    public enum Layer
-    {
-        Wall = 8,
-        Block = 9,
-    }
     public enum Scene
     {
         UnKnown,    // default

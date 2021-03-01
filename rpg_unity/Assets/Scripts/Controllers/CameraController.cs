@@ -19,7 +19,7 @@ public class CameraController : MonoBehaviour
 
             RaycastHit hit;
             Debug.DrawRay(_player.transform.position, _delta, Color.blue);
-            if (Physics.Raycast(_player.transform.position, _delta, out hit, _delta.magnitude, LayerMask.GetMask("Wall")))
+            if (Physics.Raycast(_player.transform.position, _delta, out hit, _delta.magnitude, LayerMask.GetMask("Block")))
             {
                 // 플레이어 ---Ray---> 방해물 --- 카메라일 때,
                 // 플레이어와 가로막힌 것에 대해 거리 차의 0.8f 만큼 카메라를 위치시킨다.

@@ -6,20 +6,22 @@ using UnityEngine.AI;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] float _speed = 10.0f;
+    PlayerStat _stat;
     Vector3 _destPos;
-    Animator animator;
+    Animator _animator;
     PlayerState _state = PlayerState.Idle;
     public enum PlayerState
     {
         Idle,
         Moving,
         Die,
+        Skill,
     }
 
     void Start()
     {
-        animator = GetComponent<Animator>();
+        _animator = GetComponent<Animator>();
+        _stat = GetComponent<PlayerStat>();
 
         // 리스너 등록
         GameManager.Input.MouseAction -= OnMousePressed;     // 두 번 등록 방지
@@ -40,7 +42,7 @@ public class PlayerController : MonoBehaviour
     }
     void UpdateIdle()
     {
-        animator.SetFloat("speed", 0);
+        _animator.SetFloat("speed", 0);
     }
     void UpdateMoving()
     {
@@ -54,7 +56,7 @@ public class PlayerController : MonoBehaviour
         {
             NavMeshAgent nma = gameObject.GetOrAddComponent<NavMeshAgent>();
 
-            float moveDist = Mathf.Clamp(_speed * Time.deltaTime, 0, dir.magnitude);
+            float moveDist = Mathf.Clamp(_stat.MoveSpeed * Time.deltaTime, 0, dir.magnitude);
 
             Debug.DrawRay(transform.position + Vector3.up * 0.5f, dir.normalized, Color.green);
             nma.Move(dir.normalized * moveDist);
@@ -66,7 +68,7 @@ public class PlayerController : MonoBehaviour
 
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 10 * Time.deltaTime);
         }
-        animator.SetFloat("speed", _speed);
+        _animator.SetFloat("speed", _stat.MoveSpeed);
     }
     void OnMousePressed(Define.MouseEvent evt)
     {
@@ -75,11 +77,10 @@ public class PlayerController : MonoBehaviour
 
         // ScreenToWorldPoint() + direction.normalized
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
         RaycastHit hit;
 
         // ray를 최대 100f 거리만큼 발사하여 충돌체 정보를 hit에 저장
-        if (Physics.Raycast(ray, out hit, 100f))
+        if (Physics.Raycast(ray, out hit, 100f, LayerMask.GetMask("Ground") | LayerMask.GetMask("Monster")))
         {
             // Raycast 충돌 발생하면 목적지로 지정
             _destPos = hit.point;
