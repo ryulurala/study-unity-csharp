@@ -21,8 +21,8 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
 
         // 리스너 등록
-        GameManager.Input.MouseAction -= OnMouseCliked;     // 두 번 등록 방지
-        GameManager.Input.MouseAction += OnMouseCliked;
+        GameManager.Input.MouseAction -= OnMousePressed;     // 두 번 등록 방지
+        GameManager.Input.MouseAction += OnMousePressed;
     }
 
     void Update()
@@ -58,10 +58,10 @@ public class PlayerController : MonoBehaviour
         }
         animator.SetFloat("speed", _speed);
     }
-    void OnMouseCliked(Define.MouseEvent evt)
+    void OnMousePressed(Define.MouseEvent evt)
     {
         if (_state == PlayerState.Die) return;
-        if (evt != Define.MouseEvent.Click) return;
+        if (evt != Define.MouseEvent.Press) return;
 
         // ScreenToWorldPoint() + direction.normalized
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
