@@ -6815,6 +6815,7 @@ GameObject:
   - component: {fileID: 20947770584343928}
   - component: {fileID: 1659046131625382902}
   - component: {fileID: 3857754963932222937}
+  - component: {fileID: 9066550122538340630}
   m_Layer: 0
   m_Name: unitychan
   m_TagString: Untagged
@@ -6869,7 +6870,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cb090e7110af7846acf8ea8249c7a62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 10
+  _state: 0
 --- !u!114 &3857754963932222937
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6883,3 +6884,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsUsing: 0
+--- !u!136 &9066550122538340630
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 20947770577082366}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 1.6493134
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.77141833, z: 0}

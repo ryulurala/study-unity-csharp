@@ -19,9 +19,10 @@ public class GameScene : BaseScene
         base.Init();
 
         SceneType = Define.Scene.Game;
+        gameObject.GetOrAddComponent<CursorController>();
 
         // GameManager.UI.ShowPopupUI<UI_Button>();
-        GameManager.UI.ShowSceneUI<UI_Inven>();
+        // GameManager.UI.ShowSceneUI<UI_Inven>();
 
     }
     public override void Clear()
