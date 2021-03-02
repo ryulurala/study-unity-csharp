@@ -28,11 +28,6 @@ public class UI_Button : UI_Popup
         ItemIcon,
     }
 
-    void Start()
-    {
-        init();
-    }
-
     public override void init()
     {
         base.init();

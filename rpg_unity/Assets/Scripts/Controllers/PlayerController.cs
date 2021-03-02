@@ -15,6 +15,8 @@ public class PlayerController : MonoBehaviour
         // 리스너 등록
         GameManager.Input.MouseAction -= OnMouseEvent;     // 두 번 등록 방지
         GameManager.Input.MouseAction += OnMouseEvent;
+
+        GameManager.UI.MakeWorldSpaceUI<UI_HPBar>(transform);
     }
 
     void Update()
@@ -102,7 +104,7 @@ public class PlayerController : MonoBehaviour
                     anim.CrossFade("RUN", 0.1f);
                     break;
                 case PlayerState.Attack:
-                    anim.Play("ATTACK");
+                    anim.CrossFade("ATTACK", 0f);
                     break;
             }
         }
@@ -141,17 +143,24 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void UpdateAttack()
+    void OnHitEvent()
     {
         if (_lockTarget == null)
         {
             State = PlayerState.Idle;
             return;
         }
-        Debug.Log($"Attack: {_lockTarget.name}");
+
+        Stat targetStat = _lockTarget.GetComponent<Stat>();
+        int damage = Mathf.Max(0, _stat.Attack - targetStat.Defence);
+        targetStat.HP -= damage;
+
         Vector3 dir = _lockTarget.transform.position - transform.position;
         transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 20 * Time.deltaTime);
+    }
 
+    void UpdateAttack()
+    {
         State = PlayerState.Attack;
     }
     #endregion

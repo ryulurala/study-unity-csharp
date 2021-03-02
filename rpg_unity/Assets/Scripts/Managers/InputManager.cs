@@ -35,7 +35,7 @@ public class InputManager   // 입력을 체크하고 Event로 전파해줌
             }
             else if (Input.GetMouseButtonUp(0))
             {
-                if (Time.time - _pressedTime < 1.0f)
+                if (Time.time - _pressedTime < 0.5f)
                     MouseAction.Invoke(Define.MouseEvent.Click);
                 else
                     MouseAction.Invoke(Define.MouseEvent.PointUp);
