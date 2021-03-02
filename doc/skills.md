@@ -12,7 +12,9 @@ tags:
     stat,
     mouse-cursor,
     targeting-lock-on,
-    Attack,
+    attack,
+    hp-bar,
+    slider,
   ]
 date: "2021-03-01"
 ---
@@ -349,6 +351,7 @@ public PlayerState State
                 anim.CrossFade("RUN", 0.1f);
                 break;
             case PlayerState.Attack:
+                // (Animation, 다른 Animation으로 Fade out 시간)
                 anim.CrossFade("ATTACK", 0.0f);
                 break;
         }
@@ -448,5 +451,92 @@ void UpdateAttack()
 ```
 
 ### HP Gauge
+
+1. World Space Canvas 생성
+   > 카메라와의 원근법을 적용시키기 위해서
+2. Slider 생성
+   > Fill Area, Fill 영역 설정
+3. UI_HPBar.cs 작성
+   > Position, Rotation 설정
+
+#### World Space Canvas
+
+|                     Slider 생성                     |                   Render Mode: World Space                    |                      Fill Area 영역 설정                      |                   Fill 영역 설정                    |
+| :-------------------------------------------------: | :-----------------------------------------------------------: | :-----------------------------------------------------------: | :-------------------------------------------------: |
+| ![create-slider](/uploads/skills/create-slider.png) | ![world-space-canvas](/uploads/skills/world-space-canvas.png) | ![fill-area-settings](/uploads/skills/fill-area-settings.png) | ![fill-settings](/uploads/skills/fill-settings.png) |
+
+#### UI_HPBar.cs 작성
+
+- HPBar(= Slider)의 Position
+  > Collider의 꼭대기 지점
+- Slider의 Value를 조절하여 Fill 영역 변경
+- HP_Bar의 방향은 항상 메인 카메라와의 바라보는 방향이 동일하도록 설정
+  > 항상 카메라 앞쪽으로 똑바로 보이도록
+
+```cs
+public class UI_HPBar : UI_Base
+{
+    void Update()
+    {
+        // Get 부모 GameObject
+        Transform parent = transform.parent;
+        // GameObject의 Collider 꼭대기 지점으로
+        transform.position = parent.position + Vector3.up * parent.GetComponent<Collider>().bounds.size.y;
+        // 메인 카메라의 Rotation과 HP Bar의 Rotation이 같다.
+        // 같은 방향 바라보도록
+        transform.rotation = Camera.main.transform.rotation;
+
+        // HP 갱신
+        float ratio = (float)_stat.HP / _stat.MaxHp;
+        SetRatio(ratio);
+    }
+
+    Stat _stat;
+
+    enum GameObjects
+    {
+        HPBar
+    }
+
+    public override void init()
+    {
+        // Binding
+        Bind<GameObject>(typeof(GameObjects));
+        // Get Stat 정보
+        _stat = transform.parent.GetComponent<Stat>();
+    }
+
+    public void SetRatio(float ratio)
+    {
+        // HPBar의 Slider의 value 조절
+        GetObject((int)GameObjects.HPBar).GetComponent<Slider>().value = ratio;
+    }
+}
+```
+
+#### Monster HP 감소
+
+- Monster에 HP_Bar를 연결 후, HP 감소시키기
+  - ![decrease-hp](/uploads/skills/hp-decrease.gif)
+
+```cs
+void OnHitEvent()
+{
+    if (_lockTarget == null)
+    {
+        State = PlayerState.Idle;
+        return;
+    }
+
+    // Target Object의 Stat의 HP 감소
+    Stat targetStat = _lockTarget.GetComponent<Stat>();
+    int damage = Mathf.Max(0, _stat.Attack - targetStat.Defence);
+    targetStat.HP -= damage;
+
+    // Target Object로 방향 전환
+    Vector3 dir = _lockTarget.transform.position - transform.position;
+    transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 20 * Time.deltaTime);
+}
+```
 
 ---
