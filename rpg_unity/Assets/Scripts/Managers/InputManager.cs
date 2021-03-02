@@ -8,6 +8,7 @@ public class InputManager   // 입력을 체크하고 Event로 전파해줌
 {
     public Action KeyAction = null;
     public Action<Define.MouseEvent> MouseAction = null;
+    float _pressedTime = 0.0f;
 
     public void OnUpdate()  // Listener
     {
@@ -23,13 +24,21 @@ public class InputManager   // 입력을 체크하고 Event로 전파해줌
         {
             if (Input.GetMouseButtonDown(0))
             {
-                // LMB 눌렀다 뗄 때 Click에 해당한 리스너에게 알려줌
-                MouseAction.Invoke(Define.MouseEvent.Click);
+                MouseAction.Invoke(Define.MouseEvent.PointDown);
+
+                // 시간 측정
+                _pressedTime = Time.time;
             }
             else if (Input.GetMouseButton(0))
             {
-                // LMB 눌렸으면 Press에 해당한 리스너에게 알려줌
                 MouseAction.Invoke(Define.MouseEvent.Press);
+            }
+            else if (Input.GetMouseButtonUp(0))
+            {
+                if (Time.time - _pressedTime < 1.0f)
+                    MouseAction.Invoke(Define.MouseEvent.Click);
+                else
+                    MouseAction.Invoke(Define.MouseEvent.PointUp);
             }
         }
     }

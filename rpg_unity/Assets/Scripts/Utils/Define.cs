@@ -22,11 +22,14 @@ public class Define
     {
         Click,
         Drag,
+
     }
     public enum MouseEvent
     {
         Press,  // ex. 디아블로
         Click,  // ex. LOL
+        PointDown,
+        PointUp,
     }
 
     public enum CameraMode

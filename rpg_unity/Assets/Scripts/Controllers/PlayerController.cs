@@ -16,8 +16,8 @@ public class PlayerController : MonoBehaviour
         _handIcon = GameManager.Resource.Load<Texture2D>("Textures/Cursors/Hand");
 
         // 리스너 등록
-        GameManager.Input.MouseAction -= OnMousePressed;     // 두 번 등록 방지
-        GameManager.Input.MouseAction += OnMousePressed;
+        GameManager.Input.MouseAction -= OnMouseEvent;     // 두 번 등록 방지
+        GameManager.Input.MouseAction += OnMouseEvent;
     }
 
     void Update()
@@ -69,7 +69,8 @@ public class PlayerController : MonoBehaviour
             nma.Move(dir.normalized * moveDist);
             if (Physics.Raycast(transform.position + Vector3.up * 0.5f, dir, 1.0f, LayerMask.GetMask("Block")))
             {
-                _state = PlayerState.Idle;
+                if (Input.GetMouseButton(0) == false)
+                    _state = PlayerState.Idle;
                 return;
             }
 
@@ -93,6 +94,9 @@ public class PlayerController : MonoBehaviour
 
     void UpdateMouseCursor()
     {
+        if (Input.GetMouseButton(0))
+            return;
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
@@ -117,26 +121,43 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void OnMousePressed(Define.MouseEvent evt)
+    GameObject _lockTarget;
+    void OnMouseEvent(Define.MouseEvent evt)
     {
         if (_state == PlayerState.Die) return;
-        if (evt != Define.MouseEvent.Press) return;
 
         // ScreenToWorldPoint() + direction.normalized
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
+        bool raycastHit = Physics.Raycast(ray, out hit, 100.0f, LayerMask.GetMask("Ground") | LayerMask.GetMask("Monster"));
 
-        // ray를 최대 100f 거리만큼 발사하여 충돌체 정보를 hit에 저장
-        if (Physics.Raycast(ray, out hit, 100f, LayerMask.GetMask("Ground") | LayerMask.GetMask("Monster")))
+        switch (evt)
         {
-            // Raycast 충돌 발생하면 목적지로 지정
-            _destPos = hit.point;
-            // Debug.Log($"destPost={_destPos}");
-            _state = PlayerState.Moving;
-        }
+            case Define.MouseEvent.PointDown:
+                if (raycastHit)
+                {
+                    // Raycast 충돌 발생하면 목적지로 지정
+                    _destPos = hit.point;
+                    _state = PlayerState.Moving;
 
-        // 메인 카메라 위치에서 dir 방향으로 100의 길이만큼 1초 동안 빨간색 광선 발사
-        // Debug.DrawRay(Camera.main.transform.position, ray.direction * 100f, Color.red, 1f);
+                    if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Monster"))
+                        _lockTarget = hit.collider.gameObject;
+                    else
+                        _lockTarget = null;
+                }
+                break;
+            case Define.MouseEvent.Press:
+                if (_lockTarget != null)
+                    _destPos = _lockTarget.transform.position;
+                else if (raycastHit)
+                    _destPos = hit.point;
+                break;
+            case Define.MouseEvent.PointUp:
+                _lockTarget = null;
+                break;
+            case Define.MouseEvent.Click:
+                break;
+        }
     }
     #endregion
 }
