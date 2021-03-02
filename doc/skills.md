@@ -216,7 +216,7 @@ public class PlayerStat : Stat
 ### Targeting Lock-on
 
 - Target을 클릭한 상태로 마우스 커서를 움직여도 해당 Target쪽으로 움직이게 하기
-
+  - ![targeting-lock-on](/uploads/skills/targeting-lock-on.gif)
 - `InputManager.cs`
 
   ```cs
