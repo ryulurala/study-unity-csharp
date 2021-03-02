@@ -11,6 +11,7 @@ tags:
     nav-mesh-agent,
     stat,
     mouse-cursor,
+    targeting-lock-on,
   ]
 date: "2021-03-01"
 ---
@@ -211,5 +212,90 @@ public class PlayerStat : Stat
        }
    }
    ```
+
+### Targeting Lock-on
+
+- Target을 클릭한 상태로 마우스 커서를 움직여도 해당 Target쪽으로 움직이게 하기
+
+- `InputManager.cs`
+
+  ```cs
+  // 시간 측정
+  float _pressedTime = 0.0f;
+
+  if (MouseAction != null)    // 이벤트가 등록돼있는지 확인
+  {
+      if (Input.GetMouseButtonDown(0))
+      {
+          // 처음 눌렸을 경우
+          MouseAction.Invoke(Define.MouseEvent.PointDown);
+
+          // 시간 측정 시작
+          _pressedTime = Time.time;
+      }
+      else if (Input.GetMouseButton(0))
+      {
+          // 계속 눌릴 경우
+          MouseAction.Invoke(Define.MouseEvent.Press);
+      }
+      else if (Input.GetMouseButtonUp(0))
+      {
+          // 시간을 분석하여 Click 여부를 알아냄
+          if (Time.time - _pressedTime < 1.0f)
+              MouseAction.Invoke(Define.MouseEvent.Click);
+          else
+              MouseAction.Invoke(Define.MouseEvent.PointUp);
+      }
+  }
+  ```
+
+- `PlayerController.cs`
+
+  ```cs
+  GameObject _lockTarget;
+
+  void OnMouseEvent(Define.MouseEvent evt)
+  {
+      if (_state == PlayerState.Die) return;
+
+      // ScreenToWorldPoint() + direction.normalized
+      Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+      RaycastHit hit;
+      bool raycastHit = Physics.Raycast(ray, out hit, 100.0f, LayerMask.GetMask("Ground") | LayerMask.GetMask("Monster"));
+
+      switch (evt)
+      {
+          case Define.MouseEvent.PointDown:
+              if (raycastHit)
+              {
+                  // Raycast 충돌 발생하면 목적지로 지정
+                  _destPos = hit.point;
+                  _state = PlayerState.Moving;
+
+                  // "Monster"일 경우, lockTarget 지정
+                  if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Monster"))
+                      _lockTarget = hit.collider.gameObject;
+                  else
+                      _lockTarget = null;
+              }
+              break;
+          case Define.MouseEvent.Press:
+              // 계속 마우스 버튼을 누르고 있을 경우
+              // lockTarget이 있을 경우 target position으로
+              if (_lockTarget != null)
+                  _destPos = _lockTarget.transform.position;
+              else if (raycastHit)
+                  _destPos = hit.point;
+              break;
+          case Define.MouseEvent.PointUp:
+              // 버튼을 떼었을 경우
+              _lockTarget = null;
+              break;
+          case Define.MouseEvent.Click:
+              // 클릭일 경우
+              break;
+      }
+  }
+  ```
 
 ---
