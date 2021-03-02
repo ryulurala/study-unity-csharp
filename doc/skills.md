@@ -349,7 +349,7 @@ public PlayerState State
                 anim.CrossFade("RUN", 0.1f);
                 break;
             case PlayerState.Attack:
-                anim.Play("ATTACK");
+                anim.CrossFade("ATTACK", 0.0f);
                 break;
         }
     }
@@ -420,25 +420,33 @@ void UpdateMoving()
 }
 ```
 
-#### Attack: Attack()
+#### Attack: Attack(), OnHitEvent()
 
+- OnHitEvent()
+  - |         Attack animation에 Call-back Event를 추가         |
+    | :-------------------------------------------------------: |
+    | ![attack-call-back](/uploads/skills/attack-call-back.png) |
 - State -> Idle, Attack
 
 ```cs
-void UpdateAttack()
+void OnHitEvent()
 {
     if (_lockTarget == null)
     {
         State = PlayerState.Idle;
         return;
     }
-
     // Target Object로 방향 전환
     Vector3 dir = _lockTarget.transform.position - transform.position;
     transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 20 * Time.deltaTime);
+}
 
+void UpdateAttack()
+{
     State = PlayerState.Attack;
 }
 ```
+
+### HP Gauge
 
 ---
