@@ -12,6 +12,7 @@ tags:
     stat,
     mouse-cursor,
     targeting-lock-on,
+    Attack,
   ]
 date: "2021-03-01"
 ---
@@ -297,5 +298,147 @@ public class PlayerStat : Stat
       }
   }
   ```
+
+### Attack
+
+- Animator State transition -> Code로 Animator Play() 사용
+  > Unity Editor의 Animator State 관리 -> Code로 관리
+  - ![animation-no-transition](/uploads/skills/animation-no-transition.png)
+
+|                Attack                 |
+| :-----------------------------------: |
+| ![attack](/uploads/skills/attack.gif) |
+
+#### Attack: State, Update()
+
+- State Property(Set)를 이용하여 Animator의 State와 Code의 State를 묶어서 변경
+  > Code State 변경  
+  > Animator Get  
+  > Animator State 실행
+
+```cs
+[SerializeField]
+PlayerState _state = PlayerState.Idle;
+public enum PlayerState
+{
+    Idle,
+    Moving,
+    Die,
+    Attack,
+}
+public PlayerState State
+{
+    get { return _state; }
+    set
+    {
+        // Set State
+        _state = value;
+
+        // Get Animator
+        Animator anim = GetComponent<Animator>();
+
+        // State별 Animation 실행
+        switch (_state)
+        {
+            case PlayerState.Die:
+                break;
+            case PlayerState.Idle:
+                anim.CrossFade("WAIT", 0.1f);
+                break;
+            case PlayerState.Moving:
+                anim.CrossFade("RUN", 0.1f);
+                break;
+            case PlayerState.Attack:
+                anim.Play("ATTACK");
+                break;
+        }
+    }
+}
+
+// State별 Update()
+void Update()
+{
+    switch (_state)
+    {
+        case PlayerState.Idle:
+            UpdateIdle();
+            break;
+        case PlayerState.Moving:
+            UpdateMoving();
+            break;
+        case PlayerState.Attack:
+            UpdateAttack();
+            break;
+    }
+}
+```
+
+#### Attack: Idle()
+
+- State -> Idle
+
+```cs
+void UpdateIdle()
+{
+    State = PlayerState.Idle;
+}
+```
+
+#### Attack: Moving()
+
+- State -> Idle or Attack
+
+```cs
+void UpdateMoving()
+{
+    Vector3 dir = _destPos - transform.position;
+    if (dir.magnitude < 1f)    // float 오차 범위로
+    {
+        // 도착했을 때
+        if (_lockTarget != null)
+            State = PlayerState.Attack;
+        else
+            State = PlayerState.Idle;
+    }
+    else
+    {
+        NavMeshAgent nma = gameObject.GetOrAddComponent<NavMeshAgent>();
+
+        float moveDist = Mathf.Clamp(_stat.MoveSpeed * Time.deltaTime, 0, dir.magnitude);
+
+        Debug.DrawRay(transform.position + Vector3.up * 0.5f, dir.normalized, Color.green);
+        nma.Move(dir.normalized * moveDist);
+        if (Physics.Raycast(transform.position + Vector3.up * 0.5f, dir, 1.0f, LayerMask.GetMask("Block")))
+        {
+            if (Input.GetMouseButton(0) == false)
+                State = PlayerState.Idle;
+            return;
+        }
+
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 10 * Time.deltaTime);
+    }
+}
+```
+
+#### Attack: Attack()
+
+- State -> Idle, Attack
+
+```cs
+void UpdateAttack()
+{
+    if (_lockTarget == null)
+    {
+        State = PlayerState.Idle;
+        return;
+    }
+
+    // Target Object로 방향 전환
+    Vector3 dir = _lockTarget.transform.position - transform.position;
+    transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 20 * Time.deltaTime);
+
+    State = PlayerState.Attack;
+}
+```
 
 ---
