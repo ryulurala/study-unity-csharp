@@ -689,4 +689,153 @@ void UpdateAttack()
 }
 ```
 
+### Game Manager
+
+- MMO Game에서 Editor로 `Player`, `Monster`를 매번 생성하고 제거하는 것은 불가능.
+  > 제거하는 경우, 어떤 Component가 해당 GameObject를 참조하고 있는지 알 수 없음.
+- 동적으로 `Instantiate()`하고 `Destroy()`하기 위해서는 `GameManager`가 필요.
+  > `Destroy()`하는 경우, 참조하고 있는 Component의 실행을 막아줘야 함.
+
+#### Unity Engine의 "null" 처리
+
+- Unity Engine에서 `Destroy()`할 경우 해당 GameObject는 `"null"`(진짜 null은 아님) 처리로 `==` 오버로딩 돼있으므로 `null`로 비교 가능
+
+- Extension.cs
+
+  ```cs
+  public static bool IsValid(this GameObject gameObject)
+  {
+      if (gameObject == null)
+          return false;
+      else if (gameObject.activeSelf == false)
+          return false;
+      else
+          return true;
+  }
+  ```
+
+#### `GameManager.cs`
+
+- Online Game 경우
+
+  - `Dictionary<int, GameObject>`로 Key(= Id)와 Value(= GameObject)로 접근한다.
+    - `Dictionary<PlayerId, Player Object>`
+    - `Dictionary<MonsterId, Monster Object>`
+
+- Spawn()
+  > GameObject 동적 생성  
+  > 만약, Player를 `Spawn()`할 경우에는 `CameraControll.cs`의 Player를 설정해야 함.
+- Despawn()
+  > GameObject 동적 제거  
+  > 만약, Player를 `Despawn()`할 경우에는 `CameraController.cs`에서 `IsValid()` 검사.
+- GetWorldObjectType()
+  > 해당 GameObject의 type을 알아냄  
+  > 미리 `<BaseController>`에서 `WorldObjectType`을 초기화.
+
+```cs
+public class GameManager
+{
+    // Online Game 경우
+    // Dictionary<int, GameObject> _monsters = new Dictionary<int, GameObject>();
+    // Dictionary<int, GameObject> _players = new Dictionary<int, GameObject>();
+
+    // Offline Game 경우 관리 공간
+    GameObject _player;   // Player 한 명
+    HashSet<GameObject> _monsters = new HashSet<GameObject>();  // Monster 여러 마리
+
+    public GameObject Spawn(Define.WorldObject type, string path, Transform parent = null)
+    {
+        // GameObject 생성 or Pop pooling object
+        GameObject go = Manager.Resource.Instantiate(path, parent);
+
+        // type별 매칭
+        switch (type)
+        {
+            case Define.WorldObject.Monster:
+                _monsters.Add(go);
+                break;
+            case Define.WorldObject.Player:
+                _player = go;
+                break;
+        }
+
+        return go;
+    }
+
+    public Define.WorldObject GetWorldObjectType(GameObject go)
+    {
+        // Get BaseController
+        BaseController bc = go.GetComponent<BaseController>();
+        if (bc == null)
+            return Define.WorldObject.Unknown;  // Controller가 없을 경우
+
+        return bc.WorldObjectType;  // 있으면 해당 type
+    }
+
+    public void Despawn(GameObject go)
+    {
+        Define.WorldObject type = GetWorldObjectType(go);
+
+        // type별 매칭 후 제거
+        switch (type)
+        {
+            case Define.WorldObject.Monster:
+                if (_monsters.Contains(go))
+                    _monsters.Remove(go);
+                break;
+            case Define.WorldObject.Player:
+                if (_player == go)
+                    _player = null;
+                break;
+        }
+
+        // Destroy or Active False polling object
+        Manager.Resource.Destroy(go);
+    }
+}
+```
+
+#### `HP == 0` -> `Despawn()`
+
+- ![hp-0-die](/uploads/skills/hp-0-die.gif)
+
+- `MonsterController.cs`의 `OnHitEvent()`
+
+```cs
+void OnHitEvent()
+{
+    if (_lockTarget == null)
+    {
+        State = Define.State.Idle;
+    }
+    else
+    {
+        // 상대 Get Stat -> Get Hp -> Hp 감소
+        Stat targetStat = _lockTarget.GetComponent<Stat>();
+        int damage = Mathf.Max(0, _stat.Attack - targetStat.Defence);
+        targetStat.Hp -= damage;
+
+        if (targetStat.Hp > 0)
+        {
+            float distance = (_lockTarget.transform.position - transform.position).magnitude;
+
+            if (distance <= _attackRange)
+                State = Define.State.Attack;
+            else
+                State = Define.State.Moving;
+        }
+        else
+        {
+            // Hp가 0이 됐을 경우
+            // 자신은 Idle State
+            State = Define.State.Idle;
+            // 상대방은 Die State
+            _lockTarget.GetComponent<BaseController>().State = Define.State.Die;
+            // 상대방 Destroy
+            Manager.Game.Despawn(_lockTarget);
+        }
+    }
+}
+```
+
 ---
