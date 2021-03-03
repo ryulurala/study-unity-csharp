@@ -4,6 +4,13 @@ using UnityEngine;
 
 public class Define
 {
+    public enum State
+    {
+        Idle,
+        Moving,
+        Die,
+        Attack,
+    }
     public enum Scene
     {
         UnKnown,    // default

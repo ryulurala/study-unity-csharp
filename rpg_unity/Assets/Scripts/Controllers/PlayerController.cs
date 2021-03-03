@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : BaseController
 {
     PlayerStat _stat;
 
-    void Start()
+    public override void init()
     {
         _stat = GetComponent<PlayerStat>();
 
@@ -16,28 +16,13 @@ public class PlayerController : MonoBehaviour
         GameManager.Input.MouseAction -= OnMouseEvent;     // 두 번 등록 방지
         GameManager.Input.MouseAction += OnMouseEvent;
 
-        GameManager.UI.MakeWorldSpaceUI<UI_HPBar>(transform);
-    }
-
-    void Update()
-    {
-        switch (_state)
-        {
-            case PlayerState.Idle:
-                UpdateIdle();
-                break;
-            case PlayerState.Moving:
-                UpdateMoving();
-                break;
-            case PlayerState.Attack:
-                UpdateAttack();
-                break;
-        }
+        if (gameObject.GetComponentInChildren<UI_HPBar>() == null)
+            GameManager.UI.MakeWorldSpaceUI<UI_HPBar>(transform);
     }
 
     void OnMouseEvent(Define.MouseEvent evt)
     {
-        if (_state == PlayerState.Die) return;
+        if (_state == Define.State.Die) return;
 
         // ScreenToWorldPoint() + direction.normalized
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -51,7 +36,7 @@ public class PlayerController : MonoBehaviour
                 {
                     // Raycast 충돌 발생하면 목적지로 지정
                     _destPos = hit.point;
-                    State = PlayerState.Moving;
+                    State = Define.State.Moving;
 
                     if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Monster"))
                         _lockTarget = hit.collider.gameObject;
@@ -72,96 +57,71 @@ public class PlayerController : MonoBehaviour
                 break;
         }
     }
-
-    #region State
-    Vector3 _destPos;
-    GameObject _lockTarget;
-
-    [SerializeField]
-    PlayerState _state = PlayerState.Idle;
-    public enum PlayerState
-    {
-        Idle,
-        Moving,
-        Die,
-        Attack,
-    }
-    public PlayerState State
-    {
-        get { return _state; }
-        set
-        {
-            _state = value;
-            Animator anim = GetComponent<Animator>();
-            switch (_state)
-            {
-                case PlayerState.Die:
-                    break;
-                case PlayerState.Idle:
-                    anim.CrossFade("WAIT", 0.1f);
-                    break;
-                case PlayerState.Moving:
-                    anim.CrossFade("RUN", 0.1f);
-                    break;
-                case PlayerState.Attack:
-                    anim.CrossFade("ATTACK", 0f);
-                    break;
-            }
-        }
-    }
-    void UpdateIdle()
-    {
-        State = PlayerState.Idle;
-    }
-    void UpdateMoving()
-    {
-        Vector3 dir = _destPos - transform.position;
-        if (dir.magnitude < 1f)    // float 오차 범위로
-        {
-            // 도착했을 때
-            if (_lockTarget != null)
-                State = PlayerState.Attack;
-            else
-                State = PlayerState.Idle;
-        }
-        else
-        {
-            NavMeshAgent nma = gameObject.GetOrAddComponent<NavMeshAgent>();
-
-            float moveDist = Mathf.Clamp(_stat.MoveSpeed * Time.deltaTime, 0, dir.magnitude);
-
-            Debug.DrawRay(transform.position + Vector3.up * 0.5f, dir.normalized, Color.green);
-            nma.Move(dir.normalized * moveDist);
-            if (Physics.Raycast(transform.position + Vector3.up * 0.5f, dir, 1.0f, LayerMask.GetMask("Block")))
-            {
-                if (Input.GetMouseButton(0) == false)
-                    State = PlayerState.Idle;
-                return;
-            }
-
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 10 * Time.deltaTime);
-        }
-    }
-
     void OnHitEvent()
     {
         if (_lockTarget == null)
         {
-            State = PlayerState.Idle;
-            return;
+            State = Define.State.Idle;
         }
+        else
+        {
+            State = Define.State.Attack;
 
-        Stat targetStat = _lockTarget.GetComponent<Stat>();
-        int damage = Mathf.Max(0, _stat.Attack - targetStat.Defence);
-        targetStat.HP -= damage;
-
-        Vector3 dir = _lockTarget.transform.position - transform.position;
-        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 20 * Time.deltaTime);
+            // 체력 감소시키기
+            Stat targetStat = _lockTarget.GetComponent<Stat>();
+            int damage = Mathf.Max(0, _stat.Attack - targetStat.Defence);
+            targetStat.Hp -= damage;
+        }
     }
 
-    void UpdateAttack()
+    #region State
+
+    protected override void UpdateMoving()
     {
-        State = PlayerState.Attack;
+        // 타겟 오브젝트가 있을 경우
+        if (_lockTarget != null)
+        {
+            _destPos = _lockTarget.transform.position;
+            float distance = (_destPos - transform.position).magnitude;
+
+            if (distance < 1.0f)
+            {
+                State = Define.State.Attack;
+                return;
+            }
+        }
+
+        Vector3 dir = _destPos - transform.position;
+        if (dir.magnitude < 0.1f)    // float 오차 범위로
+        {
+            // 도착했을 때
+            State = Define.State.Idle;
+        }
+        else
+        {
+            if (Physics.Raycast(transform.position + Vector3.up * 0.5f, dir, 1.0f, LayerMask.GetMask("Block")))
+            {
+                if (Input.GetMouseButton(0) == false)
+                    State = Define.State.Idle;
+                return;
+            }
+
+            // 이동
+            float moveDist = Mathf.Clamp(_stat.MoveSpeed * Time.deltaTime, 0, dir.magnitude);
+            transform.position += dir.normalized * moveDist;
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 10 * Time.deltaTime);
+        }
+    }
+    protected override void UpdateAttack()
+    {
+        base.UpdateAttack();
+
+        if (_lockTarget != null)
+        {
+            // 공격할 때 바라보도록
+            Vector3 dir = _lockTarget.transform.position - transform.position;
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 20 * Time.deltaTime);
+        }
     }
     #endregion
 }

@@ -11,7 +11,7 @@ public class UI_HPBar : UI_Base
         transform.position = parent.position + Vector3.up * parent.GetComponent<Collider>().bounds.size.y;
         transform.rotation = Camera.main.transform.rotation;
 
-        float ratio = (float)_stat.HP / _stat.MaxHp;
+        float ratio = (float)_stat.Hp / _stat.MaxHp;
         SetRatio(ratio);
     }
 
