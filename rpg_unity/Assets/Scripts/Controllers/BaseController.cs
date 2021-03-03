@@ -4,12 +4,10 @@ using UnityEngine;
 
 public abstract class BaseController : MonoBehaviour
 {
-    [SerializeField]
-    protected Vector3 _destPos;
-    [SerializeField]
-    protected GameObject _lockTarget;
-    [SerializeField]
-    protected Define.State _state = Define.State.Idle;
+    [SerializeField] protected Vector3 _destPos;
+    [SerializeField] protected GameObject _lockTarget;
+
+    [SerializeField] protected Define.State _state = Define.State.Idle;
 
     public virtual Define.State State
     {

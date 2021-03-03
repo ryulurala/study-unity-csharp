@@ -591,7 +591,7 @@ void OnHitEvent()
             float distance = (_lockTarget.transform.position - transform.position).magnitude;
 
             // Attack 범위 비교
-            if (distance < _attackRange)
+            if (distance <= _attackRange)
                 State = Define.State.Attack;
             else
                 State = Define.State.Moving;
@@ -616,7 +616,7 @@ void UpdateIdle()
         return;
 
     float distance = (player.transform.position - transform.position).magnitude;
-    if (distance < _scanRange)
+    if (distance <= _scanRange)
     {
         // 최소 Scan 범위보다 가까우면 달려감
         _lockTarget = player;
@@ -631,20 +631,27 @@ void UpdateIdle()
 ```cs
 void UpdateMoving()
 {
+    NavMeshAgent nma = gameObject.GetOrAddComponent<NavMeshAgent>();
+
     // 1. 타겟 오브젝트가 있을 경우
     if (_lockTarget != null)
     {
         _destPos = _lockTarget.transform.position;
-        float distance = (_destPos - transform.position).magnitude;
 
-        if (distance < _attackRange)
+        float distance = (_destPos - transform.position).magnitude;
+        if (distance <= _attackRange)
         {
             // Attack 범위에 왔으면 멈추도록
-            NavMeshAgent nma = gameObject.GetOrAddComponent<NavMeshAgent>();
             nma.SetDestination(transform.position);
 
             State = Define.State.Attack;
             return;
+        }
+        else if (distance > _scanRange)
+        {
+            // 스캔 범위 초과
+            _destPos = transform.position;
+            _lockTarget = null;
         }
     }
 
@@ -653,11 +660,11 @@ void UpdateMoving()
     if (dir.magnitude < 0.1f)    // float 오차 범위로
     {
         // 도착했을 때
+        nma.SetDestination(transform.position);
         State = Define.State.Idle;
     }
     else
     {
-        NavMeshAgent nma = gameObject.GetOrAddComponent<NavMeshAgent>();
         // 목표 지점으로 이동
         nma.SetDestination(_destPos);
         // 움직이는 속도 설정

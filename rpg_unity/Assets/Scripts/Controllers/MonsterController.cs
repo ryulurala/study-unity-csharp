@@ -33,7 +33,7 @@ public class MonsterController : BaseController
             {
                 float distance = (_lockTarget.transform.position - transform.position).magnitude;
 
-                if (distance < _attackRange)
+                if (distance <= _attackRange)
                     State = Define.State.Attack;
                 else
                     State = Define.State.Moving;
@@ -55,7 +55,7 @@ public class MonsterController : BaseController
             return;
 
         float distance = (player.transform.position - transform.position).magnitude;
-        if (distance < _scanRange)
+        if (distance <= _scanRange)
         {
             _lockTarget = player;
             State = Define.State.Moving;
@@ -67,19 +67,24 @@ public class MonsterController : BaseController
     {
         base.UpdateMoving();
 
+        NavMeshAgent nma = gameObject.GetOrAddComponent<NavMeshAgent>();
+
         // 1. 타겟 오브젝트가 있을 경우
         if (_lockTarget != null)
         {
             _destPos = _lockTarget.transform.position;
+
             float distance = (_destPos - transform.position).magnitude;
-
-            if (distance < _attackRange)
+            if (distance <= _attackRange)
             {
-                NavMeshAgent nma = gameObject.GetOrAddComponent<NavMeshAgent>();
                 nma.SetDestination(transform.position);
-
                 State = Define.State.Attack;
                 return;
+            }
+            else if (distance > _scanRange)
+            {
+                _destPos = transform.position;
+                _lockTarget = null;
             }
         }
 
@@ -88,11 +93,11 @@ public class MonsterController : BaseController
         if (dir.magnitude < 0.1f)    // float 오차 범위로
         {
             // 도착했을 때
+            nma.SetDestination(transform.position);
             State = Define.State.Idle;
         }
         else
         {
-            NavMeshAgent nma = gameObject.GetOrAddComponent<NavMeshAgent>();
             nma.SetDestination(_destPos);
             nma.speed = _stat.MoveSpeed;
 
