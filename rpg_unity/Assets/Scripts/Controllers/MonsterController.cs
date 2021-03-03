@@ -14,8 +14,9 @@ public class MonsterController : BaseController
         _stat = gameObject.GetComponent<Stat>();
 
         if (gameObject.GetComponentInChildren<UI_HPBar>() == null)
-            GameManager.UI.MakeWorldSpaceUI<UI_HPBar>(transform);
+            Manager.UI.MakeWorldSpaceUI<UI_HPBar>(transform);
     }
+
     void OnHitEvent()
     {
         if (_lockTarget == null)

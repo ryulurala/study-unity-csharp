@@ -91,24 +91,24 @@ date: "2021-02-11"
   - 최초의 생성자로 1번만 객체를 생성.
   - 여러 차례 생성자를 호출하면 최초로 생성된 객체를 `return` 해준다.
 
-#### GameManager 예제
+#### Manager 예제
 
-- `GameManager는` 어디서든 접근할 수 있고 객체는 오직 1개만 존재.
+- `Manager`는 어디서든 접근할 수 있고 객체는 오직 1개만 존재.
 
   1. `MonoBehaviour` Class를 상속 O
 
      - `GameObject`로 관리
-       > `GameObject.Find("@GameManager");` 이용
+       > `GameObject.Find("@Manager");` 이용
 
      ```cs
      using System.Collections;
      using System.Collections.Generic;
      using UnityEngine;
 
-     public class GameManager : MonoBehaviour // MonoBehaviour를 상속
+     public class Manager : MonoBehaviour // MonoBehaviour를 상속
      {
-         private static GameManager instance;    // 유일성 보장
-         public static GameManager Instance
+         private static Manager instance;    // 유일성 보장
+         public static Manager Instance
          {
              get
              {
@@ -119,17 +119,17 @@ date: "2021-02-11"
 
          static void init()
          {
-             // 이름으로 GameManager를 찾음.
-             GameObject go = GameObject.Find("@GameManager");
+             // 이름으로 Manager를 찾음.
+             GameObject go = GameObject.Find("@Manager");
              if (go == null)
              {
-                 // "@GameManager"의 GameObject가 없다면 Object 생성
-                 go = new GameObject { name = "@GameManager" };
-                 go.AddComponent<GameManager>();   // Script 컴포넌트 추가
+                 // "@Manager"의 GameObject가 없다면 Object 생성
+                 go = new GameObject { name = "@Manager" };
+                 go.AddComponent<Manager>();   // Script 컴포넌트 추가
              }
              // 삭제하지 못하게 함, Scene이 이동해도 제거되지 않음.
              DontDestroyOnLoad(go);
-             instance = go.GetComponent<GameManager>();
+             instance = go.GetComponent<Manager>();
          }
      }
      ```
@@ -140,19 +140,19 @@ date: "2021-02-11"
      - 눈에 보이지 않는 단점으로 보통은 1번 방법 사용
 
      ```cs
-     public class GameManager    // MonoBehaviour를 상속받지 않음.
+     public class Manager    // MonoBehaviour를 상속받지 않음.
      {
-         private static GameManager instance;    // 유일성 보장
-         public static GameManager Instance
+         private static Manager instance;    // 유일성 보장
+         public static Manager Instance
          {
              // get, property 이용
              get
              {
-                 if (instance == null) instance = new GameManager();
+                 if (instance == null) instance = new Manager();
                  return instance;
              }
          }
-         public GameManager()
+         public Manager()
          {
              // 초기화 코드
          }
@@ -433,13 +433,13 @@ date: "2021-02-11"
    }
    ```
 
-2. `GameManager`에서 관리
+2. `Manager`에서 관리
 
    ```cs
-   public class GameManager : MonoBehaviour
+   public class Manager : MonoBehaviour
    {
-       static GameManager instance;    // 유일성 보장
-       static GameManager Instance { get { if (instance == null) init(); return instance; } }    // get, Property 이용
+       static Manager instance;    // 유일성 보장
+       static Manager Instance { get { if (instance == null) init(); return instance; } }    // get, Property 이용
 
        InputManager input = new InputManager();
        public static InputManager Input { get { return Instance.input; } }
@@ -461,8 +461,8 @@ date: "2021-02-11"
        void Start()
        {
            // 리스너 등록
-           GameManager.Input.KeyAction -= OnKeyboard;  // 두 번 등록 방지
-           GameManager.Input.KeyAction += OnKeyboard;
+           Manager.Input.KeyAction -= OnKeyboard;  // 두 번 등록 방지
+           Manager.Input.KeyAction += OnKeyboard;
        }
 
        void OnKeyboard()
@@ -637,7 +637,7 @@ date: "2021-02-11"
    }
    ```
 
-2. GameManager에 ResourceManager 추가
+2. Manager에 ResourceManager 추가
 
    ```cs
    ResourceManager _resorce = new ResourceManager();
@@ -656,7 +656,7 @@ date: "2021-02-11"
 
        void Start()
        {
-           tank = GameManager.Resource.Instantiate("Tank");
+           tank = Manager.Resource.Instantiate("Tank");
 
            Destroy(tank, 3.0f);
        }
@@ -1126,8 +1126,8 @@ gameObject.name;  // 해당 객체의 name 추출
        void Start()
        {
            // 리스너 등록
-           GameManager.Input.MouseAction -= OnMouseCliked;   // 두 번 등록 방지
-           GameManager.Input.MouseAction += OnMouseCliked;
+           Manager.Input.MouseAction -= OnMouseCliked;   // 두 번 등록 방지
+           Manager.Input.MouseAction += OnMouseCliked;
        }
 
        void Update()
@@ -1958,12 +1958,12 @@ void Update()
     {
         public virtual void init()
         {
-            GameManager.UI.SetCanvas(gameObject, true);
+            Manager.UI.SetCanvas(gameObject, true);
         }
 
         public virtual void ClosePopupUI()
         {
-            GameManager.UI.ClosePopupUI(this);
+            Manager.UI.ClosePopupUI(this);
         }
     }
     ```
@@ -1980,7 +1980,7 @@ void Update()
     {
         public virtual void init()
         {
-            GameManager.UI.SetCanvas(gameObject, false);
+            Manager.UI.SetCanvas(gameObject, false);
         }
     }
     ```
@@ -2052,7 +2052,7 @@ void Update()
               name = typeof(T).Name;
 
           // Prefab 인스턴스화
-          GameObject go = GameManager.Resource.Instantiate($"UI/Scene/{name}");
+          GameObject go = Manager.Resource.Instantiate($"UI/Scene/{name}");
           T sceneUI = Util.GetOrAddComponent<T>(go);
           _SceneUI = sceneUI;
 
@@ -2069,7 +2069,7 @@ void Update()
               name = typeof(T).Name;
 
           // Prefab 인스턴스화
-          GameObject go = GameManager.Resource.Instantiate($"UI/Popup/{name}");
+          GameObject go = Manager.Resource.Instantiate($"UI/Popup/{name}");
           T popup = Util.GetOrAddComponent<T>(go);
           _popupStack.Push(popup);
 
@@ -2102,7 +2102,7 @@ void Update()
           UI_Popup popup = _popupStack.Pop();
           _order--;
 
-          GameManager.Resource.Destroy(popup.gameObject);
+          Manager.Resource.Destroy(popup.gameObject);
           popup = null; // 더 이상 접근 못하도록
       }
 
@@ -2157,7 +2157,7 @@ void Update()
                name = typeof(T).Name;
 
            // Prefab -> Instance
-           GameObject go = GameManager.Resource.Instantiate($"UI/SubItem/{name}");
+           GameObject go = Manager.Resource.Instantiate($"UI/SubItem/{name}");
 
            // Parent 설정
            if (parent != null)
@@ -2199,14 +2199,14 @@ void Update()
 
            // 처음에 혹시나 있을 아이템 모두 지워줌.
            foreach (Transform child in gridPanel.transform)
-               GameManager.Resource.Destroy(child.gameObject);
+               Manager.Resource.Destroy(child.gameObject);
 
            // 인벤토리 정보를 참고해서 채워넣음
            for (int i = 0; i < 8; i++)
            {
                // Prefab 인스턴스화
                // 종속적인 아이템 부모랑 연결
-               GameObject item = GameManager.UI.MakeSubItem<UI_Inven_Item>(parent: gridPanel.transform).gameObject;
+               GameObject item = Manager.UI.MakeSubItem<UI_Inven_Item>(parent: gridPanel.transform).gameObject;
 
                // UI_Inven_Item Component 연결
                // Extension 문법
@@ -2329,7 +2329,7 @@ public abstract class BaseScene : MonoBehaviour
         // UI의 Event부분을 담당할 EventSystem은 먼저 생성
         Object obj = GameObject.FindObjectOfType(typeof(EventSystem));
         if (obj == null)
-            GameManager.Resource.Instantiate("UI/EventSystem").name = "@EventSystem";
+            Manager.Resource.Instantiate("UI/EventSystem").name = "@EventSystem";
     }
 
     // Scene이 종료됐을 경우 실행
@@ -2367,7 +2367,7 @@ public class LoginScene : BaseScene
         {
             // Build setting 필요
             // Game Scene 이동
-            GameManager.Scene.LoadScene(Define.Scene.Game); // sync
+            Manager.Scene.LoadScene(Define.Scene.Game); // sync
         }
     }
 
@@ -2396,7 +2396,7 @@ public class GameScene : BaseScene
         {
             // Build setting 필요
             // Login Scene 이동
-            GameManager.Scene.LoadScene(Define.Scene.Login); // sync
+            Manager.Scene.LoadScene(Define.Scene.Login); // sync
         }
     }
     protected override void init()
@@ -2406,10 +2406,10 @@ public class GameScene : BaseScene
         SceneType = Define.Scene.Game;
 
         // Pop-up UI
-        GameManager.UI.ShowPopupUI<UI_Button>();
+        Manager.UI.ShowPopupUI<UI_Button>();
 
         // Scene UI
-        GameManager.UI.ShowSceneUI<UI_Inven>();
+        Manager.UI.ShowSceneUI<UI_Inven>();
     }
     public override void Clear()
     {
@@ -2514,7 +2514,7 @@ AudioClip GetOrAddAudioClip(string path, Define.Sound type = Define.Sound.SFX)
     if (type == Define.Sound.BGM)
     {
         // 배경음일 때
-        audioClip = GameManager.Resource.Load<AudioClip>(path);
+        audioClip = Manager.Resource.Load<AudioClip>(path);
     }
     else
     {
@@ -2522,7 +2522,7 @@ AudioClip GetOrAddAudioClip(string path, Define.Sound type = Define.Sound.SFX)
         if (_audioClips.TryGetValue(path, out audioClip) == false)
         {
             // 캐싱해도 없을 경우
-            audioClip = GameManager.Resource.Load<AudioClip>(path);
+            audioClip = Manager.Resource.Load<AudioClip>(path);
 
             // Dictionary에 추가
             _audioClips.Add(path, audioClip);
@@ -2722,7 +2722,7 @@ class Pool
 
         // DontDestoryOnLoad 해제 용도: 한 번은 Scene Hierarchy에 옮김
         if (parent == null)
-            poolable.transform.parent = GameManager.Scene.CurrentScene.transform;
+            poolable.transform.parent = Manager.Scene.CurrentScene.transform;
 
         // SetActive: true
         poolable.gameObject.SetActive(true);
@@ -2853,7 +2853,7 @@ public class ResourceManager
                 name = name.Substring(index + 1);
 
             // Pooling Object의 Original GameObject를 재사용
-            GameObject go = GameManager.Pool.GetOriginal(name);
+            GameObject go = Manager.Pool.GetOriginal(name);
             if (go != null)
                 return go as T;
         }
@@ -3093,7 +3093,7 @@ public class DataManager
     Loader LoadJson<Loader, Key, Value>(string path) where Loader : ILoader<Key, Value>
     {
         // .json 파일에서 Text 파일로 읽어들인다.
-        TextAsset textAsset = GameManager.Resource.Load<TextAsset>($"Data/{path}");
+        TextAsset textAsset = Manager.Resource.Load<TextAsset>($"Data/{path}");
 
         // 인게임 내에서 Load로 Json 파일을 읽어들인다.
         return JsonUtility.FromJson<Loader>(textAsset.text);

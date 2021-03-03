@@ -17,8 +17,8 @@ public class CursorController : MonoBehaviour
 
     void Start()
     {
-        _attackIcon = GameManager.Resource.Load<Texture2D>("Textures/Cursors/Attack");
-        _handIcon = GameManager.Resource.Load<Texture2D>("Textures/Cursors/Hand");
+        _attackIcon = Manager.Resource.Load<Texture2D>("Textures/Cursors/Attack");
+        _handIcon = Manager.Resource.Load<Texture2D>("Textures/Cursors/Hand");
     }
 
     void Update()

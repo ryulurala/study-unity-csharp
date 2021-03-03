@@ -19,7 +19,7 @@ public abstract class BaseScene : MonoBehaviour
     {
         Object obj = GameObject.FindObjectOfType(typeof(EventSystem));
         if (obj == null)
-            GameManager.Resource.Instantiate("UI/EventSystem").name = "@EventSystem";
+            Manager.Resource.Instantiate("UI/EventSystem").name = "@EventSystem";
     }
 
     // Scene이 종료됐을 경우 실행

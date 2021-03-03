@@ -111,7 +111,7 @@ AudioClip GetOrAddAudioClip(string path, Define.Sound type = Define.Sound.SFX)
     if (type == Define.Sound.BGM)
     {
         // 배경음일 때
-        audioClip = GameManager.Resource.Load<AudioClip>(path);
+        audioClip = Manager.Resource.Load<AudioClip>(path);
     }
     else
     {
@@ -119,7 +119,7 @@ AudioClip GetOrAddAudioClip(string path, Define.Sound type = Define.Sound.SFX)
         if (_audioClips.TryGetValue(path, out audioClip) == false)
         {
             // 캐싱해도 없을 경우
-            audioClip = GameManager.Resource.Load<AudioClip>(path);
+            audioClip = Manager.Resource.Load<AudioClip>(path);
 
             // Dictionary에 추가
             _audioClips.Add(path, audioClip);

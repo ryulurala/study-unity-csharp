@@ -178,8 +178,8 @@ date: "2021-02-15"
        void Start()
        {
            // 리스너 등록
-           GameManager.Input.MouseAction -= OnMouseCliked;   // 두 번 등록 방지
-           GameManager.Input.MouseAction += OnMouseCliked;
+           Manager.Input.MouseAction -= OnMouseCliked;   // 두 번 등록 방지
+           Manager.Input.MouseAction += OnMouseCliked;
        }
 
        void Update()

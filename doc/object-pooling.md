@@ -126,7 +126,7 @@ class Pool
 
         // DontDestoryOnLoad 해제 용도: 한 번은 Scene Hierarchy에 옮김
         if (parent == null)
-            poolable.transform.parent = GameManager.Scene.CurrentScene.transform;
+            poolable.transform.parent = Manager.Scene.CurrentScene.transform;
 
         // SetActive: true
         poolable.gameObject.SetActive(true);
@@ -257,7 +257,7 @@ public class ResourceManager
                 name = name.Substring(index + 1);
 
             // Pooling Object의 Original GameObject를 재사용
-            GameObject go = GameManager.Pool.GetOriginal(name);
+            GameObject go = Manager.Pool.GetOriginal(name);
             if (go != null)
                 return go as T;
         }

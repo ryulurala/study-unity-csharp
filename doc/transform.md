@@ -290,13 +290,13 @@ date: "2021-02-12"
    }
    ```
 
-2. `GameManager`에서 관리
+2. `Manager`에서 관리
 
    ```cs
-   public class GameManager : MonoBehaviour
+   public class Manager : MonoBehaviour
    {
-       static GameManager instance;    // 유일성 보장
-       static GameManager Instance { get { if (instance == null) init(); return instance; } }    // get, Property 이용
+       static Manager instance;    // 유일성 보장
+       static Manager Instance { get { if (instance == null) init(); return instance; } }    // get, Property 이용
 
        InputManager input = new InputManager();
        public static InputManager Input { get { return Instance.input; } }
@@ -318,8 +318,8 @@ date: "2021-02-12"
        void Start()
        {
            // 리스너 등록
-           GameManager.Input.KeyAction -= OnKeyboard;  // 두 번 등록 방지
-           GameManager.Input.KeyAction += OnKeyboard;
+           Manager.Input.KeyAction -= OnKeyboard;  // 두 번 등록 방지
+           Manager.Input.KeyAction += OnKeyboard;
        }
 
        void OnKeyboard()

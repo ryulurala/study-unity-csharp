@@ -13,11 +13,11 @@ public class PlayerController : BaseController
         _stat = GetComponent<PlayerStat>();
 
         // 리스너 등록
-        GameManager.Input.MouseAction -= OnMouseEvent;     // 두 번 등록 방지
-        GameManager.Input.MouseAction += OnMouseEvent;
+        Manager.Input.MouseAction -= OnMouseEvent;     // 두 번 등록 방지
+        Manager.Input.MouseAction += OnMouseEvent;
 
         if (gameObject.GetComponentInChildren<UI_HPBar>() == null)
-            GameManager.UI.MakeWorldSpaceUI<UI_HPBar>(transform);
+            Manager.UI.MakeWorldSpaceUI<UI_HPBar>(transform);
     }
 
     void OnMouseEvent(Define.MouseEvent evt)

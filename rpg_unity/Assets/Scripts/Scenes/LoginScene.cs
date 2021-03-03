@@ -12,7 +12,7 @@ public class LoginScene : BaseScene
         if (Input.GetKeyDown(KeyCode.Q))
         {
             // Build setting 필요
-            GameManager.Scene.LoadScene(Define.Scene.Game); // sync
+            Manager.Scene.LoadScene(Define.Scene.Game); // sync
         }
     }
     protected override void Init()
@@ -22,7 +22,7 @@ public class LoginScene : BaseScene
         SceneType = Define.Scene.Login;
 
         for (int i = 0; i < 10; i++)
-            list.Add(GameManager.Resource.Instantiate("unitychan"));
+            list.Add(Manager.Resource.Instantiate("unitychan"));
 
         StartCoroutine("coru");
     }
@@ -36,7 +36,7 @@ public class LoginScene : BaseScene
         foreach (GameObject obj in list)
         {
             yield return new WaitForSeconds(1.0f);
-            GameManager.Resource.Destroy(obj);
+            Manager.Resource.Destroy(obj);
         }
     }
 }

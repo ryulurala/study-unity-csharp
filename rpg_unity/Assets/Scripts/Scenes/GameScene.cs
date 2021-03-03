@@ -10,7 +10,7 @@ public class GameScene : BaseScene
         if (Input.GetKeyDown(KeyCode.Q))
         {
             // Build setting 필요
-            GameManager.Scene.LoadScene(Define.Scene.Login); // sync
+            Manager.Scene.LoadScene(Define.Scene.Login); // sync
         }
     }
 
@@ -21,8 +21,8 @@ public class GameScene : BaseScene
         SceneType = Define.Scene.Game;
         gameObject.GetOrAddComponent<CursorController>();
 
-        // GameManager.UI.ShowPopupUI<UI_Button>();
-        // GameManager.UI.ShowSceneUI<UI_Inven>();
+        // Manager.UI.ShowPopupUI<UI_Button>();
+        // Manager.UI.ShowSceneUI<UI_Inven>();
 
     }
     public override void Clear()

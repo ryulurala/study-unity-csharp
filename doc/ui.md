@@ -445,12 +445,12 @@ date: "2021-02-21"
     {
         public virtual void init()
         {
-            GameManager.UI.SetCanvas(gameObject, true);
+            Manager.UI.SetCanvas(gameObject, true);
         }
 
         public virtual void ClosePopupUI()
         {
-            GameManager.UI.ClosePopupUI(this);
+            Manager.UI.ClosePopupUI(this);
         }
     }
     ```
@@ -467,7 +467,7 @@ date: "2021-02-21"
     {
         public virtual void init()
         {
-            GameManager.UI.SetCanvas(gameObject, false);
+            Manager.UI.SetCanvas(gameObject, false);
         }
     }
     ```
@@ -539,7 +539,7 @@ date: "2021-02-21"
               name = typeof(T).Name;
 
           // Prefab 인스턴스화
-          GameObject go = GameManager.Resource.Instantiate($"UI/Scene/{name}");
+          GameObject go = Manager.Resource.Instantiate($"UI/Scene/{name}");
           T sceneUI = Util.GetOrAddComponent<T>(go);
           _SceneUI = sceneUI;
 
@@ -556,7 +556,7 @@ date: "2021-02-21"
               name = typeof(T).Name;
 
           // Prefab 인스턴스화
-          GameObject go = GameManager.Resource.Instantiate($"UI/Popup/{name}");
+          GameObject go = Manager.Resource.Instantiate($"UI/Popup/{name}");
           T popup = Util.GetOrAddComponent<T>(go);
           _popupStack.Push(popup);
 
@@ -589,7 +589,7 @@ date: "2021-02-21"
           UI_Popup popup = _popupStack.Pop();
           _order--;
 
-          GameManager.Resource.Destroy(popup.gameObject);
+          Manager.Resource.Destroy(popup.gameObject);
           popup = null; // 더 이상 접근 못하도록
       }
 
@@ -644,7 +644,7 @@ date: "2021-02-21"
                name = typeof(T).Name;
 
            // Prefab -> Instance
-           GameObject go = GameManager.Resource.Instantiate($"UI/SubItem/{name}");
+           GameObject go = Manager.Resource.Instantiate($"UI/SubItem/{name}");
 
            // Parent 설정
            if (parent != null)
@@ -686,14 +686,14 @@ date: "2021-02-21"
 
            // 처음에 혹시나 있을 아이템 모두 지워줌.
            foreach (Transform child in gridPanel.transform)
-               GameManager.Resource.Destroy(child.gameObject);
+               Manager.Resource.Destroy(child.gameObject);
 
            // 인벤토리 정보를 참고해서 채워넣음
            for (int i = 0; i < 8; i++)
            {
                // Prefab 인스턴스화
                // 종속적인 아이템 부모랑 연결
-               GameObject item = GameManager.UI.MakeSubItem<UI_Inven_Item>(parent: gridPanel.transform).gameObject;
+               GameObject item = Manager.UI.MakeSubItem<UI_Inven_Item>(parent: gridPanel.transform).gameObject;
 
                // UI_Inven_Item Component 연결
                // Extension 문법

@@ -69,7 +69,7 @@ public abstract class BaseScene : MonoBehaviour
         // UI의 Event부분을 담당할 EventSystem은 먼저 생성
         Object obj = GameObject.FindObjectOfType(typeof(EventSystem));
         if (obj == null)
-            GameManager.Resource.Instantiate("UI/EventSystem").name = "@EventSystem";
+            Manager.Resource.Instantiate("UI/EventSystem").name = "@EventSystem";
     }
 
     // Scene이 종료됐을 경우 실행
@@ -107,7 +107,7 @@ public class LoginScene : BaseScene
         {
             // Build setting 필요
             // Game Scene 이동
-            GameManager.Scene.LoadScene(Define.Scene.Game); // sync
+            Manager.Scene.LoadScene(Define.Scene.Game); // sync
         }
     }
 
@@ -136,7 +136,7 @@ public class GameScene : BaseScene
         {
             // Build setting 필요
             // Login Scene 이동
-            GameManager.Scene.LoadScene(Define.Scene.Login); // sync
+            Manager.Scene.LoadScene(Define.Scene.Login); // sync
         }
     }
     protected override void init()
@@ -146,10 +146,10 @@ public class GameScene : BaseScene
         SceneType = Define.Scene.Game;
 
         // Pop-up UI
-        GameManager.UI.ShowPopupUI<UI_Button>();
+        Manager.UI.ShowPopupUI<UI_Button>();
 
         // Scene UI
-        GameManager.UI.ShowSceneUI<UI_Inven>();
+        Manager.UI.ShowSceneUI<UI_Inven>();
     }
     public override void Clear()
     {

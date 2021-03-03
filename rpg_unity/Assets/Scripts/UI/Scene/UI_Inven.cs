@@ -21,13 +21,13 @@ public class UI_Inven : UI_Scene
 
         // 처음에 혹시나 있을 아이템 모두 지워줌.
         foreach (Transform child in gridPanel.transform)
-            GameManager.Resource.Destroy(child.gameObject);
+            Manager.Resource.Destroy(child.gameObject);
 
         // 인벤토리 정보를 참고해서 채워넣음
         for (int i = 0; i < 8; i++)
         {
             // Prefab 인스턴스화
-            GameObject item = GameManager.UI.MakeSubItem<UI_Inven_Item>(parent: gridPanel.transform).gameObject;
+            GameObject item = Manager.UI.MakeSubItem<UI_Inven_Item>(parent: gridPanel.transform).gameObject;
 
             // UI_Inven_Item Component 연결
             UI_Inven_Item invenIten = item.GetOrAddComponent<UI_Inven_Item>();

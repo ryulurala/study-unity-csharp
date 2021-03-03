@@ -149,7 +149,7 @@ date: "2021-02-13"
    }
    ```
 
-2. GameManager에 ResourceManager 추가
+2. Manager에 ResourceManager 추가
 
    ```cs
    ResourceManager _resorce = new ResourceManager();
@@ -168,7 +168,7 @@ date: "2021-02-13"
 
        void Start()
        {
-           tank = GameManager.Resource.Instantiate("Tank");
+           tank = Manager.Resource.Instantiate("Tank");
 
            Destroy(tank, 3.0f);
        }

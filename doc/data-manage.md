@@ -100,7 +100,7 @@ public class DataManager
     Loader LoadJson<Loader, Key, Value>(string path) where Loader : ILoader<Key, Value>
     {
         // .json 파일에서 Text 파일로 읽어들인다.
-        TextAsset textAsset = GameManager.Resource.Load<TextAsset>($"Data/{path}");
+        TextAsset textAsset = Manager.Resource.Load<TextAsset>($"Data/{path}");
 
         // 인게임 내에서 Load로 Json 파일을 읽어들인다.
         return JsonUtility.FromJson<Loader>(textAsset.text);
