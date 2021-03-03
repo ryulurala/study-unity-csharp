@@ -10,7 +10,8 @@ public class PlayerController : BaseController
 
     public override void init()
     {
-        _stat = GetComponent<PlayerStat>();
+        WorldObjectType = Define.WorldObject.Player;
+        _stat = gameObject.GetOrAddComponent<PlayerStat>();
 
         // 리스너 등록
         Manager.Input.MouseAction -= OnMouseEvent;     // 두 번 등록 방지

@@ -7,6 +7,8 @@ public class CameraController : MonoBehaviour
     [SerializeField] Define.CameraMode _mode = Define.CameraMode.QuarterView;
     [SerializeField] Vector3 _delta = new Vector3(0.0f, 6.0f, -5.0f);  // 플레이어와의 거리 차이 벡터
     [SerializeField] GameObject _player = null;
+    public GameObject Player { get { return _player; } set { _player = value; } }
+
     void Start()
     {
 
@@ -16,6 +18,8 @@ public class CameraController : MonoBehaviour
     {
         if (_mode == Define.CameraMode.QuarterView)
         {
+            if (!_player.IsValid())
+                return;
 
             RaycastHit hit;
             Debug.DrawRay(_player.transform.position, _delta, Color.blue);
@@ -25,7 +29,6 @@ public class CameraController : MonoBehaviour
                 // 플레이어와 가로막힌 것에 대해 거리 차의 0.8f 만큼 카메라를 위치시킨다.
                 float dist = (hit.point - _player.transform.position).magnitude * 0.8f;
                 transform.position = _player.transform.position + _delta.normalized * dist;
-
             }
             else
             {

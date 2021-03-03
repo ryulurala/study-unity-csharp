@@ -14,4 +14,14 @@ public static class Extension
     {
         UI_Base.BindEvent(gameObject, action, type);
     }
+
+    public static bool IsValid(this GameObject gameObject)
+    {
+        if (gameObject == null)
+            return false;
+        else if (gameObject.activeSelf == false)
+            return false;
+        else
+            return true;
+    }
 }

@@ -21,9 +21,8 @@ public class GameScene : BaseScene
         SceneType = Define.Scene.Game;
         gameObject.GetOrAddComponent<CursorController>();
 
-        // Manager.UI.ShowPopupUI<UI_Button>();
-        // Manager.UI.ShowSceneUI<UI_Inven>();
-
+        Camera.main.GetComponent<CameraController>().Player = Manager.Game.Spawn(Define.WorldObject.Player, "UnityChan");
+        Manager.Game.Spawn(Define.WorldObject.Monster, "Skeleton");
     }
     public override void Clear()
     {

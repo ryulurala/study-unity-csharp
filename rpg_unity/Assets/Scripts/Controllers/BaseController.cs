@@ -6,9 +6,8 @@ public abstract class BaseController : MonoBehaviour
 {
     [SerializeField] protected Vector3 _destPos;
     [SerializeField] protected GameObject _lockTarget;
-
+    [SerializeField] public Define.WorldObject WorldObjectType { get; protected set; } = Define.WorldObject.Unknown;
     [SerializeField] protected Define.State _state = Define.State.Idle;
-
     public virtual Define.State State
     {
         get { return _state; }

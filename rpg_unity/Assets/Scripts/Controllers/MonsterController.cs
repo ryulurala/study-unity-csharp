@@ -11,7 +11,8 @@ public class MonsterController : BaseController
 
     public override void init()
     {
-        _stat = gameObject.GetComponent<Stat>();
+        WorldObjectType = Define.WorldObject.Monster;
+        _stat = gameObject.GetOrAddComponent<Stat>();
 
         if (gameObject.GetComponentInChildren<UI_HPBar>() == null)
             Manager.UI.MakeWorldSpaceUI<UI_HPBar>(transform);
@@ -42,6 +43,8 @@ public class MonsterController : BaseController
             else
             {
                 State = Define.State.Idle;
+                _lockTarget.GetComponent<BaseController>().State = Define.State.Die;
+                Manager.Game.Despawn(_lockTarget);
             }
         }
     }
