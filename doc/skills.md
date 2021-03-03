@@ -15,6 +15,7 @@ tags:
     attack,
     hp-bar,
     slider,
+    monster,
   ]
 date: "2021-03-01"
 ---
@@ -352,7 +353,7 @@ public PlayerState State
                 break;
             case PlayerState.Attack:
                 // (Animation, 다른 Animation으로 Fade out 시간)
-                anim.CrossFade("ATTACK", 0.0f);
+                anim.CrossFade("ATTACK", 0.1f);
                 break;
         }
     }
@@ -383,7 +384,7 @@ void Update()
 ```cs
 void UpdateIdle()
 {
-    State = PlayerState.Idle;
+
 }
 ```
 
@@ -394,30 +395,38 @@ void UpdateIdle()
 ```cs
 void UpdateMoving()
 {
+    // 1. 타겟 오브젝트가 있을 경우
+    if (_lockTarget != null)
+    {
+        _destPos = _lockTarget.transform.position;
+        float distance = (_destPos - transform.position).magnitude;
+
+        if (distance < 1.0f)
+        {
+            State = Define.State.Attack;
+            return;
+        }
+    }
+
+    // 2. 일반적인 이동
     Vector3 dir = _destPos - transform.position;
-    if (dir.magnitude < 1f)    // float 오차 범위로
+    if (dir.magnitude < 0.1f)    // float 오차 범위로
     {
         // 도착했을 때
-        if (_lockTarget != null)
-            State = PlayerState.Attack;
-        else
-            State = PlayerState.Idle;
+        State = Define.State.Idle;
     }
     else
     {
-        NavMeshAgent nma = gameObject.GetOrAddComponent<NavMeshAgent>();
-
-        float moveDist = Mathf.Clamp(_stat.MoveSpeed * Time.deltaTime, 0, dir.magnitude);
-
-        Debug.DrawRay(transform.position + Vector3.up * 0.5f, dir.normalized, Color.green);
-        nma.Move(dir.normalized * moveDist);
         if (Physics.Raycast(transform.position + Vector3.up * 0.5f, dir, 1.0f, LayerMask.GetMask("Block")))
         {
             if (Input.GetMouseButton(0) == false)
-                State = PlayerState.Idle;
+                State = Define.State.Idle;
             return;
         }
 
+        // 이동
+        float moveDist = Mathf.Clamp(_stat.MoveSpeed * Time.deltaTime, 0, dir.magnitude);
+        transform.position += dir.normalized * moveDist;
         transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 10 * Time.deltaTime);
     }
 }
@@ -436,17 +445,22 @@ void OnHitEvent()
 {
     if (_lockTarget == null)
     {
-        State = PlayerState.Idle;
-        return;
+        State = Define.State.Idle;
     }
-    // Target Object로 방향 전환
-    Vector3 dir = _lockTarget.transform.position - transform.position;
-    transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 20 * Time.deltaTime);
+    else
+    {
+        State = Define.State.Attack;
+    }
 }
 
 void UpdateAttack()
 {
-    State = PlayerState.Attack;
+    if(_lockTarget != null)
+    {
+        // Target Object를 바라보도록
+        Vector3 dir = _lockTarget.transform.position - transform.position;
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 20 * Time.deltaTime);
+    }
 }
 ```
 
@@ -536,6 +550,135 @@ void OnHitEvent()
     // Target Object로 방향 전환
     Vector3 dir = _lockTarget.transform.position - transform.position;
     transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 20 * Time.deltaTime);
+}
+```
+
+### Monster AI
+
+- | Monster는 Player tag가 붙어있는 GameObject가 특정 거리 범위 안으로 들어온다면 공격 상태로 전환 |
+  | :--------------------------------------------------------------------------------------------: |
+  |                         ![monster-ai](/uploads/skills/monster-ai.gif)                          |
+
+```cs
+// 최소 Scan 범위: Vector3의 magnitude를 이용
+[SerializeField] float _scanRange = 10.0f;
+// 최소 Attack 범위: Vector3의 magnitude를 이용
+[SerializeField] float _attackRange = 2.0f;
+```
+
+#### Monster: OnHitEvent()
+
+```cs
+// Animation Call-back func
+void OnHitEvent()
+{
+    if (_lockTarget == null)
+    {
+        // 해당 몬스터가 때리는 순간에 플레이어는 죽을 수 있다.(= Destroy)
+        State = Define.State.Idle;
+    }
+    else
+    {
+        // 상대 체력 감소
+        Stat targetStat = _lockTarget.GetComponent<Stat>();
+        int damage = Mathf.Max(0, _stat.Attack - targetStat.Defence);
+        targetStat.Hp -= damage;
+
+        if (targetStat.Hp > 0)
+        {
+            // 체력이 있을 때
+            // distance: magnitude로 구함
+            float distance = (_lockTarget.transform.position - transform.position).magnitude;
+
+            // Attack 범위 비교
+            if (distance < _attackRange)
+                State = Define.State.Attack;
+            else
+                State = Define.State.Moving;
+        }
+        else
+        {
+            // 체력이 0이하 일때 Idle 상태 변경
+            State = Define.State.Idle;
+        }
+    }
+}
+```
+
+#### Monster: UpdateIdle()
+
+```cs
+void UpdateIdle()
+{
+    // Player tag로 GameObject 찾음
+    GameObject player = GameObject.FindGameObjectWithTag("Player");
+    if (player == null)
+        return;
+
+    float distance = (player.transform.position - transform.position).magnitude;
+    if (distance < _scanRange)
+    {
+        // 최소 Scan 범위보다 가까우면 달려감
+        _lockTarget = player;
+        State = Define.State.Moving;
+        return;
+    }
+}
+```
+
+#### Monster: UpdateMoving()
+
+```cs
+void UpdateMoving()
+{
+    // 1. 타겟 오브젝트가 있을 경우
+    if (_lockTarget != null)
+    {
+        _destPos = _lockTarget.transform.position;
+        float distance = (_destPos - transform.position).magnitude;
+
+        if (distance < _attackRange)
+        {
+            // Attack 범위에 왔으면 멈추도록
+            NavMeshAgent nma = gameObject.GetOrAddComponent<NavMeshAgent>();
+            nma.SetDestination(transform.position);
+
+            State = Define.State.Attack;
+            return;
+        }
+    }
+
+    // 2. 일반 이동
+    Vector3 dir = _destPos - transform.position;
+    if (dir.magnitude < 0.1f)    // float 오차 범위로
+    {
+        // 도착했을 때
+        State = Define.State.Idle;
+    }
+    else
+    {
+        NavMeshAgent nma = gameObject.GetOrAddComponent<NavMeshAgent>();
+        // 목표 지점으로 이동
+        nma.SetDestination(_destPos);
+        // 움직이는 속도 설정
+        nma.speed = _stat.MoveSpeed;
+
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 10 * Time.deltaTime);
+    }
+}
+```
+
+#### Monster: UpdateAttack()
+
+```cs
+void UpdateAttack()
+{
+    if (_lockTarget != null)
+    {
+        // 공격할 때 바라보도록
+        Vector3 dir = _lockTarget.transform.position - transform.position;
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 20 * Time.deltaTime);
+    }
 }
 ```
 
