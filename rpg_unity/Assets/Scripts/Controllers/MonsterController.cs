@@ -26,10 +26,8 @@ public class MonsterController : BaseController
         }
         else
         {
-            // 체력 감소시키기
             Stat targetStat = _lockTarget.GetComponent<Stat>();
-            int damage = Mathf.Max(0, _stat.Attack - targetStat.Defence);
-            targetStat.Hp -= damage;
+            targetStat.OnAttacked(_stat);
 
             if (targetStat.Hp > 0)
             {
@@ -54,7 +52,7 @@ public class MonsterController : BaseController
     protected override void UpdateIdle()
     {
         base.UpdateIdle();
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        GameObject player = Manager.Game.Player;
         if (player == null)
             return;
 

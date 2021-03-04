@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,5 +27,31 @@ public class Stat : MonoBehaviour
         _attack = 10;
         _defence = 5;
         _moveSpeed = 5.0f;
+    }
+
+    public virtual void OnAttacked(Stat attacker)
+    {
+        // 체력 감소시키기
+        int damage = Mathf.Max(0, attacker.Attack - Defence);
+        Hp -= damage;
+        if (Hp <= 0)
+        {
+            Hp = 0;
+            OnDead(attacker);
+        }
+    }
+
+    protected virtual void OnDead(Stat attacker)
+    {
+        // 경험치
+        PlayerStat playerStat = attacker as PlayerStat;
+        if (playerStat != null)
+        {
+            playerStat.Exp += 30;
+            // 레벨업 체크는 Property로
+        }
+
+        // GameObject 제거
+        Manager.Game.Despawn(gameObject);
     }
 }

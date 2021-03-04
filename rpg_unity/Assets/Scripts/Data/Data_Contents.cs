@@ -14,8 +14,10 @@ namespace Data
         // 이름 동일해야 함.
         // type도 자동으로 parsring
         public int level;
-        public int hp;
+        public int maxHp;
         public int attack;
+        public int defence;
+        public int totalExp;
     }
 
     [Serializable]

@@ -66,12 +66,11 @@ public class PlayerController : BaseController
         }
         else
         {
-            State = Define.State.Attack;
-
             // 체력 감소시키기
             Stat targetStat = _lockTarget.GetComponent<Stat>();
-            int damage = Mathf.Max(0, _stat.Attack - targetStat.Defence);
-            targetStat.Hp -= damage;
+            targetStat.OnAttacked(_stat);
+
+            State = Define.State.Attack;
         }
     }
 
