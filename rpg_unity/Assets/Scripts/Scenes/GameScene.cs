@@ -22,7 +22,10 @@ public class GameScene : BaseScene
         gameObject.GetOrAddComponent<CursorController>();
 
         Camera.main.GetComponent<CameraController>().Player = Manager.Game.Spawn(Define.WorldObject.Player, "UnityChan");
-        Manager.Game.Spawn(Define.WorldObject.Monster, "Skeleton");
+        // Manager.Game.Spawn(Define.WorldObject.Monster, "Skeleton");
+        GameObject go = new GameObject { name = "SpawningPool" };
+        SpawningPool pool = go.GetOrAddComponent<SpawningPool>();
+        pool.SetKeepMonsterCount(5);
     }
     public override void Clear()
     {
