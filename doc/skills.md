@@ -16,6 +16,7 @@ tags:
     hp-bar,
     slider,
     monster,
+    level-up,
   ]
 date: "2021-03-01"
 ---
@@ -833,6 +834,90 @@ void OnHitEvent()
             _lockTarget.GetComponent<BaseController>().State = Define.State.Die;
             // 상대방 Destroy
             Manager.Game.Despawn(_lockTarget);
+        }
+    }
+}
+```
+
+### Level-Up
+
+- Damage를 주는 것은 공격자가 Hp를 떨어뜨리는 것보다 피해자가 Hp를 떨어뜨리는 것이 좋다.
+
+  > 피해자마다 버프, 패시브 등이 있기 때문에 공격자가 모두 체크하기 힘듦.  
+  > 상대방의 함수로 실행
+
+- ![level-up](/uploads/skills/level-up.gif)
+
+#### Stat's func
+
+- Stat과 관련된 function
+  - `OnAttacked()`
+    > 피격자의 Stat의 함수 호출(자신의 Stat)
+  - `OnDead()`
+    > Dead 경우 Despawn 처리  
+    > 공격자가 Player인 경우, Exp 증가  
+    > Exp는 Property로 Level-up check를 동시에
+
+```cs
+// TargetObject.OnAttacked(자신의 Stat)로 호출
+public virtual void OnAttacked(Stat attacker)
+{
+    // 체력 감소시키기
+    int damage = Mathf.Max(0, attacker.Attack - Defence);
+    Hp -= damage;
+    if (Hp <= 0)
+    {
+        Hp = 0;
+        OnDead(attacker);
+    }
+}
+
+protected virtual void OnDead(Stat attacker)
+{
+    // 경험치
+    PlayerStat playerStat = attacker as PlayerStat;
+    if (playerStat != null)
+    {
+        // 레벨업 체크는 Property로
+        playerStat.Exp += 30;
+    }
+
+    // GameObject 제거
+    Manager.Game.Despawn(gameObject);
+}
+```
+
+#### Level-up check
+
+- Property를 Set하는 것만으로 Level-up check를 동시에 자동으로 진행
+
+```cs
+public int Exp
+{
+    get { return _exp; }
+    set
+    {
+        _exp = value;
+
+        // Level-up check
+        int level = Level;
+        while (true)
+        {
+            Data.Stat stat;
+            // 다음 레벨 없음
+            if (Manager.Data.StatDict.TryGetValue(level + 1, out stat) == false)
+                break;
+            // 현재 경험치가 다음 레벨 최고 경험치보다 적을 경우
+            if (_exp < stat.totalExp)
+                break;
+            level++;
+        }
+
+        if (level > Level)
+        {
+            Debug.Log("Level Up!");
+            Level = level;
+            SetStat(Level);
         }
     }
 }
