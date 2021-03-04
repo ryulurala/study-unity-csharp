@@ -17,6 +17,7 @@ tags:
     slider,
     monster,
     level-up,
+    spawing-pool,
   ]
 date: "2021-03-01"
 ---
@@ -919,6 +920,125 @@ public int Exp
             Level = level;
             SetStat(Level);
         }
+    }
+}
+```
+
+### Spawning Pool
+
+- | 몬스터의 `Re-Spawn` 시작 범위를 설정 후 계속 `Re-Spawn` |
+  | :-----------------------------------------------------: |
+  |   ![spawning-pool](/uploads/skills/spawning-pool.gif)   |
+
+- GameManager에서 `Spawn()` / `Despawn()`할 때마다 Call-back func로 Spawning Pool의 Monster Count를 증가 / 감소
+
+#### GameManager.cs: `Spawn()`, `Despawn()`
+
+```cs
+public GameObject Spawn(Define.WorldObject type, string path, Transform parent = null)
+{
+    GameObject go = Manager.Resource.Instantiate(path, parent);
+    switch (type)
+    {
+        case Define.WorldObject.Monster:
+            _monsters.Add(go);
+            // Call-back으로 MonsterCount 증가
+            if (OnSpawnEvent != null)
+                OnSpawnEvent.Invoke(1);
+            break;
+    }
+}
+
+public void Despawn(GameObject go)
+{
+    Define.WorldObject type = GetWorldObjectType(go);
+
+    switch (type)
+    {
+        case Define.WorldObject.Monster:
+            if (_monsters.Contains(go))
+            {
+                _monsters.Remove(go);
+                // Call-back으로 MonsterCount 감소
+                if (OnSpawnEvent != null)
+                    OnSpawnEvent.Invoke(-1);
+            }
+    }
+}
+```
+
+#### SpawingPool.cs
+
+- `ReserveSpawn()` Call로 몬스터 `Spawn()`
+
+```cs
+public class SpawningPool : MonoBehaviour
+{
+    // 현재 MonsterCount
+    // GameManager에서 Call-back으로 증가, 감소시켜줌
+    [SerializeField] int _monsterCount = 0;
+    // 예약된 MonsterCount
+    [SerializeField] int _reserveCount = 0;
+    // 유지할 MonsterCount
+    [SerializeField] int _keepMonsterCount = 0;
+    // Spawn될 Position Vector3
+    [SerializeField] Vector3 _spawnPos;
+    // 구의 중점 _spawnPos에서의 반지름
+    [SerializeField] float _spawnRadius = 15.0f;
+    // Random Spawn MaxTime
+    [SerializeField] float _spawnMaxTime = 5.0f;
+
+    // GameManager에서 Total Monster Count를 조절
+    public void AddMonsterCount(int value) { _monsterCount += value; }
+    public void SetKeepMonsterCount(int count) { _keepMonsterCount = count; }
+
+    void Start()
+    {
+        // Spawn()할 경우, Call-back으로 Moster Count를 증가
+        Manager.Game.OnSpawnEvent -= AddMonsterCount;   // 두 번 등록 방지
+        Manager.Game.OnSpawnEvent += AddMonsterCount;
+    }
+
+    void Update()
+    {
+        while (_reserveCount + _monsterCount < _keepMonsterCount)
+        {
+            // 예약 몬스터 수 + 현재 몬스터 수 < 유지할 몬스터 수
+            StartCoroutine(ReserveSpawn());
+        }
+    }
+
+    IEnumerator ReserveSpawn()
+    {
+        // 예약 몬스터 수 증가
+        _reserveCount++;
+        yield return new WaitForSeconds(Random.Range(0, _spawnMaxTime));
+        // 랜덤으로 0 ~ 5초 후
+
+        // Monster Spawn
+        GameObject obj = Manager.Game.Spawn(Define.WorldObject.Monster, "Skeleton");
+        NavMeshAgent nma = obj.GetOrAddComponent<NavMeshAgent>();
+
+        // for. 유효한 path
+        NavMeshPath path = new NavMeshPath();
+
+        while (true)
+        {
+            // 랜덤 크기가 1인 구 형태 좌표 추출(for. 방향 벡터 추출)
+            Vector3 randDir = Random.insideUnitSphere * _spawnRadius;
+            randDir.y = 0;
+            Vector3 randPos = _spawnPos + randDir;
+
+            // 갈 수 있는 지
+            if (nma.CalculatePath(randPos, path))
+            {
+                obj.transform.position = randPos;
+                break;
+            }
+        }
+
+        // 예약 몬스터 수 감소
+        _reserveCount--;
     }
 }
 ```
