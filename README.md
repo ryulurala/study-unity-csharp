@@ -1,4 +1,4 @@
-# mmo-client-unity
+# study_mmo-game-client
 
 [Studying "Unity-Framework" by Inf-Learn](https://inf.run/UH1T)
 
