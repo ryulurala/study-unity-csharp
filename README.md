@@ -1,4 +1,4 @@
-# study_mmo-game-client
+# study-unity-csharp
 
 [Studying "Unity-Framework" by Inf-Learn](https://inf.run/UH1T)
 
